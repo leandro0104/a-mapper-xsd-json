@@ -6,11 +6,20 @@ import { MapperService } from 'src/app/services/mapper.service';
   templateUrl: './body.component.html',
   styleUrls: ['./body.component.css']
 })
-export class BodyComponent implements OnInit {
+export class BodyComponent implements OnInit{
 
-  constructor(private mapper: MapperService) { }
+  allJson: any[] = [];
+
+  constructor(private mapper: MapperService) {
+    this.mapper.getJsonFormat()
+   .subscribe( (data: any) => {
+      console.log(data);
+      this.allJson = data;
+   });
+  }
 
   ngOnInit(): void {
   }
+
 
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MapperService } from 'src/app/services/mapper.service';
 
 @Component({
   selector: 'app-header',
@@ -7,7 +8,23 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  allClients: any[] = [];
+  allDocuments: any[] = [];
+
+  constructor(private mapper: MapperService) {
+    this.mapper.getClients()
+   .subscribe( (data: any) => {
+      console.log(data);
+      this.allClients = data;
+   });
+
+    this.mapper.getDocuments()
+   .subscribe( (data: any) => {
+     console.log(data);
+     this.allDocuments = data;
+   });
+
+  }
 
   ngOnInit(): void {
   }

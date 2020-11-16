@@ -4,6 +4,7 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './components/header/header.component';
 import { BodyComponent } from './components/body/body.component';
 import { HttpClientModule } from '@angular/common/http';
+import { MapperService } from './services/mapper.service';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,9 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    MapperService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
