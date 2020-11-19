@@ -8,7 +8,8 @@ import { MapperService } from 'src/app/services/mapper.service';
 })
 export class BodyComponent implements OnInit{
 
-  allJson: any[] = [];
+  allJson: any = {};
+  allXpath: any[] = [];
 
   constructor(private mapper: MapperService) {
     this.mapper.getJsonFormat()
@@ -16,7 +17,14 @@ export class BodyComponent implements OnInit{
       console.log(data);
       this.allJson = data;
    });
+
+    this.mapper.GETXpathXML()
+   .subscribe((data: any) => {
+     console.log(data);
+     this.allXpath = data;
+   });
   }
+
 
   ngOnInit(): void {
   }

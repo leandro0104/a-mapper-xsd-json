@@ -1,23 +1,113 @@
-<div class="container-fluid">
+<div class="collapse container-fluid" id="collapseBody">
     <div class="card">
         <div class="card-header">
           CONFIGURE LOS CAMPOS DEL ARCHIVO DE ENTRADA
         </div>
         <div class="card-body">
             <div class="card">
-                <div class="card-header">ESQUEMA JSON</div>
+                <div class="card-header">{{ allJson.title }}</div>
                 <div class="card">
                   <div class="card-body">
-                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-                      Mostrar
-                    </button>
-                    
-                    <div class="collapse" id="collapseExample">
-                      <hr>
-                      <div class="card card-body">
-                        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
+                    <div class="form-inline">
+                      <button class="btn btn-success mb3" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                        </svg>
+                      </button>
+                        <div class="dropdown col-md-4 mb3">
+                          <button class="btn btn-secondary dropdown-toggle" type="button" id="sampleDropdownMenu" data-toggle="dropdown" >Properties</button>
+                          <div class="dropdown-menu noclose">
+                            <div class="checkbox mb3 noclose">
+                              <label><input type="checkbox" value="">Option 1</label>
+                            </div>
+                            <div class="checkbox mb3">
+                              <label><input type="checkbox" value="">Option 2</label>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+              
+                    <small class="form-text text-muted">{{ allJson.description }}</small>
+                    <div class="collapse container-fluid" id="collapseExample">
+                      <br>
+                      <div class="accordion" id="accordionExample">
+                        <div class="card">
+                          <div class="card-header" id="numDoc">
+                            <h2 class="mb-0">
+                              <h5 class="card-tittle">{{ allJson.properties?.numDocumento.title }}</h5>
+                              <div class="form-row container-fluid">
+                                <button type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#collapsenumDoc" aria-expanded="false" aria-controls="collapseOne">
+                                  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-play" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            </h2>
+                            <small class="form-text text-muted">{{ allJson.properties?.numDocumento.description }}</small>
+                          </div>
+                      
+                          <div id="collapsenumDoc" class="collapse" aria-labelledby="numDoc" data-parent="#accordionExample">
+                            <div class="card-body">
+                              <form>
+                                <div class="form-group">
+                                  <label for="exampleInputEmail1">Ruta Origen</label>
+                                  <select class="custom-select">
+                                    <option *ngFor = "let xpath of allXpath">{{xpath}}</option>
+                                  </select>
+                                  
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card">
+                          <div class="card-header" id="tipoDoc">
+                            <h2 class="mb-0">
+                              <h5 class="card-tittle">{{ allJson.properties?.tipoDocElect.title }}</h5>
+                              <div class="form-row container-fluid">
+                                <button type="button" class="btn btn-outline-success" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-play" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M10.804 8L5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>
+                                  </svg>
+                                </button>
+                              </div>
+                            </h2>
+                            <small class="form-text text-muted">{{ allJson.properties?.tipoDocElect.description }}</small>
+                          </div>
+                      
+                          <div id="collapseOne" class="collapse" aria-labelledby="tipoDoc" data-parent="#accordionExample">
+                            <div class="card-body">
+                              <form>
+                                <div class="form-group">
+                                  <label for="exampleInputEmail1">Ruta Origen</label>
+                                  <select class="custom-select">
+                                    <option *ngFor = "let xpath of allXpath">{{xpath}}</option>
+                                  </select>
+                                  
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card">
+                          <div class="card-header" id="headingThree">
+                            <h2 class="mb-0">
+                              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Collapsible Group Item #3
+                              </button>
+                            </h2>
+                          </div>
+                          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                            <div class="card-body">
+                              <form>
+
+                              </form>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+
                   </div>
                 </div>
               </div>
