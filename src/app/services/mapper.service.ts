@@ -6,9 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class MapperService {
 
-  constructor(private http: HttpClient) {
-    console.log('Servicio Mapper Listo');
-   }
+  constructor(private http: HttpClient) {}
 
   getClients(){
     return this.http.get('https://run.mocky.io/v3/9b3edf82-3c0a-414a-8dee-4fd68dec9f3c');

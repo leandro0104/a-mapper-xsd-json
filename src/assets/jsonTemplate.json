@@ -1,0 +1,2760 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Esquema JSON Factura Electronica Computec",
+  "description": "Definicion del Esquema JSON empleado para Factura Electronica",
+  "version": {
+    "name": "Factura electronica computec",
+    "version": "1.7.20.20-SNAPSHOT"
+  },
+  "contact": [
+    {
+      "contactId": "1",
+      "organizationName": "Computec Outsourcing SAS"
+    }
+  ],
+  "definitions": {
+    "etiquetasSelect": {
+      "type": "string",
+      "title": "Nombre etiqueta entrada",
+      "description": "Poner nombre de la etiqueta del archivo de entrada.",
+      "enum": ["sdasdasd"]
+    },
+    "propiedadMapeo": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "xPath": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Nombre xPath",
+          "description": "Poner nombre de la etiqueta del xPath."
+        },
+        "default": {
+          "type": "string",
+          "title": "Valor por defecto",
+          "default": "DEFAULT_COUNT",
+          "description": "Si el valor viene nulo o vacío en el archivo de entrada, se pondrá este valor por defecto. Si se quiere dejar un ID numerico autogenerado para etiquetas con múltiples ocurrencias,como 'DETALLE', 'OPCIONAL', 'CARGO', etc., dejar el valor reservada: DEFAULT_COUNT."
+        }
+      },
+      "required": ["xPath"]
+    },
+    "propiedadMapeoBoleano": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "xPath": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Nombre xPath",
+          "description": "Poner nombre de la etiqueta del xPath."
+        },
+        "verdaderoCuando": {
+          "type": "string",
+          "title": "Verdadero si:",
+          "description": "Le indica al maper que cuando en esa posicion venga el valor definido, deberá poner verdadero (true), falso(false) de los contrario.",
+          "default": "true"
+        }
+      },
+      "required": ["xPath","verdaderoCuando"]
+    },
+    "infoMapeoColeccion": {
+      "type": "object",
+      "properties": {
+        "xPath": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Nombre xPath",
+          "description": "Poner nombre de xPath del archivo de entrada que se repite n veces en el documento, Por ejemplo: /XML/INFO"
+        },
+        "etiquetaSalida": {
+          "type": "string",
+          "title": "Nombre etiqueta de salida en el json",
+          "description": "Poner nombre de la etiqueta del json de salida con el que se mapea la colección, por ejemplo, para DETALLE: detalles",
+          "enum": [
+            "adquirientes",
+            "anticipos",
+            "cargos",
+            "descuentos",
+            "detalles",
+            "motivosNota",
+            "refDocDespacho",
+            "refDocRecibo",
+            "refFacturacionFacturas",
+            "refFacturacionNotas",
+            "refOrdenCompra",
+            "refOtroDocumento",
+            "totalImpuesto",
+            "totalImpuestoNominal",
+            "opcionales",
+            "codigoBarras"
+          ]
+        }
+      },
+      "required": ["xPath", "etiquetaSalida"]
+    },
+    "cargo": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "cargo",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "codigoRazonCargo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAQ04: Codigo para categorizar el cargo",
+            "description": "Codigo que describe el tipo de cargo aplicado a este documento electronico. (Ejemplo: '01', para 'Pague uno lleve otro')"
+          },
+          "fechaCargo": {
+            "$ref": "#/definitions/fecha",
+            "title": "*RG: Fecha del Cargo",
+            "description": "Fecha en la cual se realiza la aplicacion del cargo (Ejemplo: 2019-03-25)"
+          },
+          "idCargo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAQ02: Identificador del cargo",
+            "description": "Identificador del cargo a relacionar en el documento electronico. (Ejemplo: 1)"
+          },
+          "porcentajeCargo": {
+            "$ref": "#/definitions/porcentaje",
+            "title": "FAQ06: Porcentaje del cargo",
+            "description": "Porcentaje con el cual se realiza el calculo del valor del cargo a aplicar al documento electronico. (Ejemplo: 10)"
+          },
+          "razonCargo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAQ05: Razon del cargo",
+            "description": "Campo de texto libre para informar la razon del cargo aplicado al documento electronico."
+          },
+          "valorBaseCargo": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAQ09: Valor base para calcular el cargo",
+            "description": "Valor de la base sobre la cual se calcula el cargo aplicado al documento electronico. (Ejemplo: 1000)"
+          },
+          "valorCargo": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAQ07: Valor total del cargo",
+            "description": "Valor total del cargo calculado como 'valorBaseCargo * porcentajeCargo / 100'. (Ejemplo: 100)"
+          }
+        },
+        "description": "Definicion de cargos que se aplican a nivel del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": [
+          "idCargo",
+          "porcentajeCargo",
+          "razonCargo",
+          "valorBaseCargo",
+          "valorCargo"
+        ]
+      },
+      "title": "Cargos documento"
+    },
+    "cargoLinea": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "title": "cargo linea",
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "fechaCargo": {
+            "$ref": "#/definitions/fecha",
+            "title": "*RG: Fecha del Cargo",
+            "description": "Fecha en la cual se realiza la aplicacion del cargo (Ejemplo: 2019-03-25)"
+          },
+          "idCargo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBE02: Identificador del cargo",
+            "description": "Identificador del cargo a relacionar en la linea de detalle del documento electronico. (Ejemplo: 1)"
+          },
+          "porcentajeCargo": {
+            "$ref": "#/definitions/porcentaje",
+            "title": "FBE05: Porcentaje del cargo",
+            "description": "Porcentaje con el cual se realiza el calculo del valor del cargo a aplicar en la linea de detalle del documento electronico. (Ejemplo: 10)"
+          },
+          "razonCargo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBE04: Razon del cargo",
+            "description": "Campo de texto libre para informar la razon del cargo aplicado a la linea de detalle del documento electronico."
+          },
+          "valorBaseCargo": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FBE08: Valor base para calcular el cargo",
+            "description": "Valor de la base sobre la cual se calcula el cargo aplicado a la linea de detalle del documento electronico. (Ejemplo: 1000)"
+          },
+          "valorCargo": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FBE06: Valor total del cargo",
+            "description": "Valor total del cargo calculado como 'valorBaseCargo * porcentajeCargo / 100'. (Ejemplo: 100)"
+          }
+        },
+        "description": "Definicion de cargos que se aplican a nivel de una linea de detalle del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["porcentajeCargo", "valorBaseCargo", "valorCargo"]
+      }
+    },
+    "columna": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "idColumna": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Identificador de la columna",
+          "description": "Codigo que permite identificar una columna de la tabla."
+        },
+        "valor": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Valor del campo",
+          "description": "Valor que debe llevar la tabla en dicho campo"
+        }
+      },
+      "description": "Definicion de campo tipo columna que conformara la estructura de tablas habilitada para la representacion grafica",
+      "additionalProperties": false,
+      "required": ["idColumna", "valor"]
+    },
+    "decimalOrNumeric": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "description": "Definicion de los campos numericos teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "descuento": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "Descuento",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "codigoRazonDto": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAQ04: Codigo para categorizar el descuento",
+            "description": "Codigo que describe el tipo de descuento aplicado a este documento electronico. (Ejemplo: '01', para 'Pague uno lleve otro')"
+          },
+          "fechaDescuento": {
+            "$ref": "#/definitions/fecha",
+            "title": "*RG: Fecha del Descuento",
+            "description": "Fecha en la cual se realiza la aplicacion del descuento. (Ejemplo: 2019-03-25)"
+          },
+          "idDescuento": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAQ02: Identificador del descuento",
+            "description": "Identificador del descuento a relacionar en el documento electronico. (Ejemplo: 1)"
+          },
+          "porcentajeDto": {
+            "$ref": "#/definitions/porcentaje",
+            "title": "FAQ06: Porcentaje del descuento",
+            "description": "Porcentaje con el cual se realiza el calculo del valor del descuento a aplicar al documento electronico. (Ejemplo: 10)"
+          },
+          "razonDescuento": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAQ05: Razon del descuento",
+            "description": "Campo de texto libre para informar la razon del descuento aplicado al documento electronico."
+          },
+          "valorBaseDto": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAQ09: Valor base para calcular el descuento",
+            "description": "Valor de la base sobre la cual se calcula el descuento aplicado al documento electronico. (Ejemplo: 1000)"
+          },
+          "valorDto": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAQ07: Valor total del descuento",
+            "description": "Valor total del descuento calculado como 'valorBaseDto * porcentajeDto / 100'. (Ejemplo: 100)"
+          }
+        },
+        "description": "Definicion de descuentos que se aplican a nivel del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": [
+          "idDescuento",
+          "porcentajeDto",
+          "razonDescuento",
+          "valorBaseDto",
+          "valorDto"
+        ]
+      },
+      "title": "Descuentos documento"
+    },
+    "descuentoLinea": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "Descuento linea",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "fechaDescuento": {
+            "$ref": "#/definitions/fecha",
+            "title": "*RG: Fecha del descuento",
+            "description": "Fecha en la cual se realiza la aplicacion del descuento. (Ejemplo: 2019-03-25)"
+          },
+          "idDescuento": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBE02: Identificador del descuento",
+            "description": "Identificador del descuento a relacionar en la linea de detalle del documento electronico. (Ejemplo: 1)"
+          },
+          "porcentajeDto": {
+            "$ref": "#/definitions/porcentaje",
+            "title": "FBE05: Porcentaje del descuento",
+            "description": "Porcentaje con el cual se realiza el calculo del valor del descuento a aplicar en la linea de detalle del documento electronico. (Ejemplo: 10)"
+          },
+          "razonDescuento": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBE04: Razon del descuento",
+            "description": "Campo de texto libre para informar la razon del descuento aplicado a la linea de detalle del documento electronico."
+          },
+          "valorBaseDto": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FBE08: Valor base para calcular el descuento",
+            "description": "Valor de la base sobre la cual se calcula el descuento aplicado a la linea de detalle del documento electronico. (Ejemplo: 1000)"
+          },
+          "valorDto": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FBE06: Valor total del descuento",
+            "description": "Valor total del descuento calculado como 'valorBaseDto * porcentajeDto / 100'. (Ejemplo: 100)"
+          }
+        },
+        "description": "Definicion de descuentos que se aplican a nivel de una linea de detalle del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["porcentajeDto", "valorBaseDto", "valorDto"]
+      }
+    },
+    "detalleTributario": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "Detalle tributario",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "idTributo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAS16: Identificador del tributo",
+            "description": "Codigo que permite identificar un tributo. (Ejemplo: 01, para IVA)"
+          },
+          "nombreTributo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAS17: Nombre del tributo",
+            "description": "Nombre del tributo indicado en el campo 'idTributo'. (Ejemplo: IVA)"
+          }
+        },
+        "description": "Definicion de grupo que permite informar los detalles tributarios teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["idTributo", "nombreTributo"]
+      },
+      "minItems": 1
+    },
+    "direccion": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "codigoDepto": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Codigo de departamento",
+          "description": "Codigo del departamento (territorio colombiano) segun tabla definida por la DIAN en Anexo tecnico de factura electronica. (Ejemplo: 25, para Cundinamarca)"
+        },
+        "codigoMunicipio": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Codigo del municipio",
+          "description": "Codigo identificador del municipio/ciudad segun tabla definida por la DIAN en Anexo tecnico de factura electronica. (Ejemplo: 11001, para Bogota, D.C.)"
+        },
+        "codigoPais": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Codigo del pais",
+          "description": "Codigo identificador del pais (enviar un valor de la columna 'Codigo alfa-2') segun tabla definida por la DIAN en Anexo tecnico de factura electronica. (Ejemplo: CO, para Colombia)"
+        },
+        "codigoPostal": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Codigo postal de la ubicacion",
+          "description": "Codigo postal de la direccion indicada segun tabla definida por la DIAN en Anexo tecnico de factura electronica. (Ejemplo: 110851, para Kennedy)"
+        },
+        "direccionTexto": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Direccion",
+          "description": "Elemento de texto libre utilizado para informar la direccion. (Ejemplo: Calle 38A # 36-50 Barrio Teusaquillo)"
+        },
+        "nombreCiudad": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nombre de la ciudad",
+          "description": "Nombre del municipio/ciudad indicado en el campo 'codigoMunicipio'. (Ejemplo: BOGOTa, D.C.)"
+        },
+        "nombreDepto": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nombre del departamento",
+          "description": "Nombre del departamento indicado en el campo 'codigoDepto'. (Ejemplo: Cundinamarca)"
+        },
+        "nombrePais": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nombre del pais",
+          "description": "Nombre del pais indicado en el campo 'codigoPais'. (Ejemplo: COLOMBIA)"
+        }
+      },
+      "description": "Definicion de grupo que permite indicar la informacion de una direccion teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": [
+        "codigoDepto",
+        "codigoMunicipio",
+        "codigoPais",
+        "codigoPostal"
+      ]
+    },
+    "documentoReferencia": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "fechaEmision": {
+          "$ref": "#/definitions/fecha",
+          "title": "FBH06: Fecha de emision del documento electronico relacionado",
+          "description": "Fecha en la cual se emitio el documento electronico relacionado. (Ejemplo: 2019-02-15)"
+        },
+        "numDocumento": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FBH03: Numero del documento electronico relacionado",
+          "description": "Numero del documento electronico relacionado (Prefijo + Numero del documento). (Ejemplo: SETP990000101)"
+        },
+        "uuid": {
+          "$ref": "#/definitions/uuid",
+          "title": "FBH04-FBH05: Codigo unico de Factura Electronica (CUFE) o Codigo unico de Documento Electronico (CUDE)",
+          "description": "Codigo unico que identifica el documento electronico relacionado. (Ejemplo: 60ac5674b759e7728b10872b802465ac359138c09f06629ce02d47505094773e5f7e613e26369917b7f99fddc3022a39)"
+        }
+      },
+      "description": "Definicion de grupo que permite indicar la informacion de un documento electronico de referencia teniendo en cuenta el anexo tenico de la DIAN.",
+      "additionalProperties": false,
+      "required": ["fechaEmision", "numDocumento", "uuid"]
+    },
+    "fecha": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Definicion del formato de fecha",
+      "description": "Definicion del formato de fecha que debe ser empleado teniendo en cuenta el anexo tecnico de la DIAN. (YYYY-MM-DD)"
+    },
+    "fila": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "idFila": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Identificador de la fila",
+          "description": "Codigo que permite identificar una fila de la tabla."
+        },
+        "columnas": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "$ref": "#/definitions/columna",
+            "title": "Columnas de la fila",
+            "description": "Lista de columnas que conforman dicha fila."
+          }
+        }
+      },
+      "description": "Definicion de campo tipo file que conformara la estructura de tablas habilitada para la representacion grafica",
+      "additionalProperties": false,
+      "required": ["idFila", "columnas"]
+    },
+    "hora": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Definicion del formato de hora",
+      "description": "Definicion del formato de hora que debe ser empleado teniendo en cuenta el anexo tecnico de la DIAN. (HH:MM:SSdhh:mm)"
+    },
+    "impuesto": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "impuesto",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "esRetenido": {
+            "$ref": "#/definitions/propiedadMapeoBoleano",
+            "title": "Impuesto retenido",
+            "description": "Indicador que permite identificar si el impuesto relacionado es retenido (true) o no lo es (false). (Ejemplo: 'true')"
+          },
+          "subtotal": {
+            "type": "array",
+            "options": {
+              "collapsed": true
+            },
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "options": {
+                "collapsed": true
+              },
+              "properties": {
+                "baseImponible": {
+                  "$ref": "#/definitions/valorMonetario",
+                  "title": "FAS05: Base imponible",
+                  "description": "Base sobre la cual se realiza el calculo del valor del impuesto. (Ejemplo: 1000)"
+                },
+                "infoImpuesto": {
+                  "type": "object",
+                  "options": {
+                    "collapsed": true
+                  },
+                  "properties": {
+                    "porcentaje": {
+                      "$ref": "#/definitions/valorMonetario",
+                      "title": "FAS14: Tarifa del tributo",
+                      "description": "Tarifa o porcentaje del tributo con el cual se realiza el calculo del valor del impuesto. (Ejemplo: 10)"
+                    },
+                    "idImpuesto": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FAS16: Identificador del tributo",
+                      "description": "Codigo que permite identificar un tributo. (Ejemplo: 01, para IVA)"
+                    },
+                    "nombreImpuesto": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FAS17: Nombre del tributo",
+                      "description": "Nombre del tributo indicado en el campo 'idImpuesto'. (Ejemplo: IVA)"
+                    },
+                    "idImpuestoSelect": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "Id del impuesto segun el cliente",
+                      "description": "Id con el que el cliente identifica sus impuestos"
+                    },
+                    "nombreImpuestoSelect": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "Id del impuesto segun el cliente",
+                      "description": "Id con el que el cliente identifica sus impuestos"
+                    }
+                  },
+                  "description": "Definicion de grupo que permite indicar la informacion del impuesto teniendo en cuenta el anexo tecnico de la DIAN.",
+                  "additionalProperties": false,
+                  "required": ["porcentaje", "idImpuesto", "nombreImpuesto"]
+                },
+                "valorImpuesto": {
+                  "$ref": "#/definitions/valorMonetario",
+                  "title": "FAS07: Valor del tributo",
+                  "description": "Valor del tributo calculado como 'baseImponible * porcentaje / 100'. (Ejemplo: 100)"
+                }
+              },
+              "description": "Definicion de grupo que permite informar los subtotales del impuesto teniendo en cuenta el anexo tecnico de la DIAN.",
+              "additionalProperties": false,
+              "required": ["baseImponible", "infoImpuesto", "valorImpuesto"]
+            }
+          },
+          "valorTotalImpuesto": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAS02: Valor del tributo",
+            "description": "Valor total del tributo (sumatoria del campo 'valorImpuesto' de cada uno de los subtotales)"
+          }
+        },
+        "description": "Definicion de grupo que permite indicar la informacion de un impuesto (enunciado en porcentaje) teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["esRetenido", "subtotal", "valorTotalImpuesto"]
+      }
+    },
+    "impuestoNominal": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "impuesto nominal",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "subtotalNominal": {
+            "type": "array",
+            "options": {
+              "collapsed": true
+            },
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "options": {
+                "collapsed": true
+              },
+              "properties": {
+                "baseImponible": {
+                  "$ref": "#/definitions/valorMonetario",
+                  "title": "FAS05: Base imponible",
+                  "description": "Numero de unidades tributadas. (Ejemplo: 10)"
+                },
+                "cantidadUnidades": {
+                  "$ref": "#/definitions/valorMonetario",
+                  "title": "FAV04: Cantidad del producto o servicio",
+                  "description": "Cantidad del producto o servicio empleado para el calculo del valor del tributo. (Ejemplo: 10)"
+                },
+                "valorImpuesto": {
+                  "$ref": "#/definitions/valorMonetario",
+                  "title": "FAS07: Valor del tributo",
+                  "description": "Valor del tributo calculado como 'cantidadUnidades * valorUnidad'. (Ejemplo: 300)"
+                },
+                "unidadMedidaBase": {
+                  "$ref": "#/definitions/propiedadMapeo",
+                  "title": "FAS09: Unidad de medida base para el tributo",
+                  "description": "Unidad de medida base para el tributo. (Ejemplo: 1)"
+                },
+                "idUnidadMedida": {
+                  "$ref": "#/definitions/propiedadMapeo",
+                  "title": "FAS10: Identificacion de la unidad de medida",
+                  "description": "Codigo que describe el tipo de unidad de medida. (Ejemplo: NIU, para numero de unidades internacionales)"
+                },
+                "infoImpuestoNominal": {
+                  "type": "object",
+                  "options": {
+                    "collapsed": true
+                  },
+                  "properties": {
+                    "idImpuesto": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FAS16: Identificador del tributo",
+                      "description": "Codigo que permite identificar un tributo. (Ejemplo: 22, para Impuestos sobre las bolsas)"
+                    },
+                    "nombreImpuesto": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FAS17: Nombre del tributo",
+                      "description": "Nombre del tributo indicado en el campo 'idImpuesto'. (Ejemplo: Impuestos sobre las bolsas)"
+                    }
+                  },
+                  "description": "Definicion de grupo que permite indicar la informacion del impuesto teniendo en cuenta el anexo tecnico de la DIAN.",
+                  "additionalProperties": false,
+                  "required": ["idImpuesto", "nombreImpuesto"]
+                },
+                "valorUnidad": {
+                  "$ref": "#/definitions/valorMonetario",
+                  "title": "FAS11: Valor del tributo por unidad",
+                  "description": "Valor del tributo por cada unidad. (Ejemplo: 30)"
+                }
+              },
+              "description": "Definicion de grupo que permite informar los subtotales del impuesto teniendo en cuenta el anexo tecnico de la DIAN.",
+              "additionalProperties": false,
+              "required": [
+                "cantidadUnidades",
+                "valorImpuesto",
+                "unidadMedidaBase",
+                "idUnidadMedida",
+                "infoImpuestoNominal",
+                "valorUnidad"
+              ]
+            }
+          },
+          "valorTotalImpuesto": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAS02: Valor del tributo",
+            "description": "Valor total del tributo (sumatoria del campo 'valorImpuesto' de cada uno de los subtotales)"
+          }
+        },
+        "description": "Definicion de grupo que permite indicar la informacion de un impuesto (enunciado en valores nominales) teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["subtotalNominal", "valorTotalImpuesto"]
+      }
+    },
+    "infoContacto": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "email": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Correo electronico de contacto",
+          "description": "Informacion del correo electronico de contacto"
+        },
+        "nombreContacto": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nombre de contacto",
+          "description": "Informacion del nombre de contacto"
+        },
+        "notaContacto": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nota adicional de contacto",
+          "description": "Informacion adicional de contacto"
+        },
+        "telefax": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Numero de telefax, telefono, celular u otro",
+          "description": "Informacion del numero de telefax, telefono celular u otro"
+        },
+        "telefono": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Numero de telefono, celular u otro",
+          "description": "Informacion de numero de telefono celular u otro"
+        }
+      },
+      "description": "Definicion de grupo que permite indicar la informacion de contacto teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false
+    },
+    "infoRut": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "dvNit": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "DV del NIT",
+          "description": "Digito de Verificacion (DV) cuando es tipo de identificacion NIT teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 1, para 9006462511)"
+        },
+        "direccion": {
+          "$ref": "#/definitions/direccion",
+          "title": "Direccion fiscal",
+          "description": "Informacion de la direccion fiscal teniendo en cuenta el anexo tecnico de la DIAN."
+        },
+        "identificacion": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Numero de identificacion",
+          "description": "Numero de identificacion teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 9006462511, para Computec)"
+        },
+        "matriculaMercantil": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Numero de matricula mercantil",
+          "description": "Numero de matricula mercantil teniendo en cuenta el anexo tecnico de la DIAN."
+        },
+        "nombre": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nombre o Razon Social",
+          "description": "Nombre o la razon social teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: COMPUTEC OUTSOURCING S.A.S.)"
+        },
+        "responsabilidades": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Obligaciones",
+          "description": "Obligaciones o responsabilidades fiscales teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: O-13, para Gran Contribuyente)"
+        },
+        "tipoIdentificacion": {
+          "$ref": "#/definitions/tipoDocId",
+          "title": "Identificador del tipo de identificacion",
+          "description": "Codigo que describe el tipo de identificacion teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 31, para NIT)"
+        },
+        "tipoRegimen": {
+          "$ref": "#/definitions/tipoRegimen",
+          "title": "Tipo de regimen",
+          "description": "Codigo que describe el tipo de regimen al que pertenece teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 04, para Regimen Simple)"
+        }
+      },
+      "description": "Definicion de grupo que permite indicar la informacion tributaria teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": [
+        "identificacion",
+        "nombre",
+        "responsabilidades",
+        "tipoIdentificacion",
+        "tipoRegimen"
+      ]
+    },
+    "opcional": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "descripcionOpcional": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Descripcion o Label",
+          "description": "Descripcion o label del campo opcional que puede ser representado graficamente."
+        },
+        "idOpcional": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Identificador del Opcional",
+          "description": "Codigo que permite identificar el campo opcional referenciado. (Ejemplo: 1)"
+        },
+        "valorCampo": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Valor del Opcional",
+          "description": "Valor del campo opcional referenciado que contiene la informacion que debe representarse graficamente."
+        }
+      },
+      "description": "Definicion de grupo que permite adicionar informacion adicional para la representacion grafica.",
+      "additionalProperties": false,
+      "required": ["descripcionOpcional", "idOpcional", "valorCampo"]
+    },
+    "opcionalCompuesto": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "idOpcional": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Identificador del Opcional",
+          "description": "Codigo que permite identificar el campo opcional referenciado. (Ejemplo: 1)"
+        },
+        "valorOpcional": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "posicion": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "Posicion del valor",
+                "description": "Valor de la posicion que identifica el valor del campo opcional. (Ejemplo: 1)"
+              },
+              "valor": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "Valor del Opcional",
+                "description": "Valor del campo opcional para una posicion determinada que contiene la informacion que debe representarse graficamente."
+              }
+            },
+            "description": "Definicion de grupo que permite adicionar multiples valores identificados con una posicion, a un mismo campo opcional.",
+            "additionalProperties": false,
+            "required": ["posicion", "valor"]
+          }
+        }
+      },
+      "description": "Definicion de grupo que permite adicionar informacion adicional para la representacion grafica.",
+      "additionalProperties": false,
+      "required": ["idOpcional", "valorOpcional"]
+    },
+    "porcentaje": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "description": "Definicion del formato empleado en valores de tipo porcentaje."
+    },
+    "refDespacho": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "fechaDocDespacho": {
+            "$ref": "#/definitions/fecha",
+            "title": "CAG03: Fecha de emision del documento de despacho",
+            "description": "Fecha en la cual se emitio el documento de despacho referenciado. (Ejemplo: 2019-02-21)"
+          },
+          "idDocDespacho": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CAG02: Prefijo y Numero del documento despacho referenciado",
+            "description": "Numero o identificador del documento de despacho referenciado. (Ejemplo: SFR3123856)"
+          }
+        },
+        "description": "Definicion de grupo que permite informar los documentos de despacho referenciados al documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["idDocDespacho"]
+      }
+    },
+    "refFacturacionFacturas": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "facturas": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "documentoReferencia": {
+                "$ref": "#/definitions/documentoReferencia",
+                "title": "CBG01/DBG01: Informacion de facturas electronicas referenciadas",
+                "description": "Facturas electronicas de referencia para la nota credito o debito."
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Definicion de grupo que permite informar las facturas de referencia que se afectan con la nota credito o debito teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false
+    },
+    "refFacturacionNotas": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "notasCredito": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "documentoReferencia": {
+                "$ref": "#/definitions/documentoReferencia",
+                "title": "FBH02: Informacion de notas credito referenciadas",
+                "description": "Notas credito de referencia para la factura electronica"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "notasDebito": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "documentoReferencia": {
+                "$ref": "#/definitions/documentoReferencia",
+                "title": "FBI02: Informacion de notas debito referenciadas",
+                "description": "Notas debito de referencia para la factura electronica"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "description": "Definicion de grupo que permite informar las notas de referencia que dan origen a la factura electronica teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false
+    },
+    "refOCompra": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "fechaOrdenCompra": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAF03: Fecha de emision de la orden",
+          "description": "Fecha en la cual se emitio la orden (Ejemplo: 2019-03-15)"
+        },
+        "idOrdenCompra": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAF02: Prefijo y Numero del documento orden referenciado",
+          "description": "Numero o identificador de la orden de referencia. (Ejemplo: SFR3123856)"
+        }
+      },
+      "description": "Definicion de grupo que permite informar las ordenes de referencia para el documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": ["idOrdenCompra"]
+    },
+    "refOtroDoc": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "fechaEmision": {
+            "$ref": "#/definitions/fecha",
+            "title": "CAI05: Fecha de emision del documento adicional de referencia",
+            "description": "Fecha en la cual se emitio el documento adicional de referencia. (Ejemplo: 2019-04-15)"
+          },
+          "numDocumento": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CAI02: Prefijo y Numero del documento adicional de referencia",
+            "description": "Numero o identificador del documento adicional de referencia. (Ejemplo: SFR3123856)"
+          },
+          "tipoDocumento": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CAI06: Identificadr del tipo de documento adicional de referencia",
+            "description": "Codigo que describe el tipo de documento no tributario al que pertenece el documento adicional de referencia. (Ejemplo: 15-C, para Order de Pedido)"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["numDocumento", "tipoDocumento"]
+      }
+    },
+    "refRecibo": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "fechaDocRecibo": {
+            "$ref": "#/definitions/fecha",
+            "title": "CAH03: Fecha de emision del documento de recepcion",
+            "description": "Fecha en la cual se emitio el documento de recepcion referenciado. (Ejemplo: 2019-02-21)"
+          },
+          "idDocRecibo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CAH02: Prefijo y Numero del documento de recepcion referenciado",
+            "description": "Numero o identificador del documento de recepcion referenciado. (Ejemplo: SFR3123856)"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["idDocRecibo"]
+      }
+    },
+    "tabla": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "idTabla": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Identificador de la Tabla",
+          "description": "Codigo que permite identificar la tabla relacionada. (Ejemplo: 1)"
+        },
+        "opcionales": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "$ref": "#/definitions/opcional",
+            "title": "Campos Opcionales",
+            "description": "Lista de campos opcionales que contienen informacion adicional para la tabla."
+          }
+        },
+        "etiquetaInicioTabla": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Etiqueta Inicio Tabla",
+          "description": "Poner nombre de la etiqueta del archivo de entrada."
+        },
+        "etiquetaFinTabla": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Etiqueta Fin Tabla",
+          "description": "Poner nombre de la etiqueta del archivo de entrada."
+        },
+        "etiquetaFilas": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Etiqueta Filas",
+          "description": "Poner nombre de la etiqueta del archivo de entrada."
+        },
+        "etiquetaOpcionales": {
+          "$ref": "#/definitions/etiquetasSelect",
+          "title": "Etiqueta Opcionales",
+          "description": "Poner nombre de la etiqueta del archivo de entrada."
+        },
+        "filas": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "$ref": "#/definitions/fila",
+            "title": "Filas de la Tabla",
+            "description": "Lista que contiene las filas que conforman la tabla."
+          }
+        }
+      },
+      "description": "Definicion de grupo tipo tabla que permite representar estas estructuras de forma grafica.",
+      "additionalProperties": false,
+      "required": ["idTabla", "filas"]
+    },
+    "tasaCambio": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "fechaTrm": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAR07: Fecha en que se fijo la tasa de cambio",
+          "description": "Fecha en la cual se fija la tasa de cambio. (Ejemplo: 2019-05-15)"
+        },
+        "monedaDestino": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAR04: Divisa a la cual se hace la conversion",
+          "description": "Codigo que describe la moneda a la cual de hace la conversion. (Ejemplo: EUR, para Euro)"
+        },
+        "monedaOrigen": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAR02: Divisa base del documento",
+          "description": "Codigo que describe la moneda base del documento electroncio. (Ejemplo: COP, para Peso Colombiano)"
+        },
+        "valorTrm": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAR06: Valor de la tasa de cambio",
+          "description": "Valor de la tasa de cambio entre las divisas indicadas. (Ejemplo: 3500.00)"
+        }
+      },
+      "description": "Definicion de grupo que permite indicar la informacion de la tasa de cammbio del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": ["fechaTrm", "monedaDestino", "monedaOrigen", "valorTrm"]
+    },
+    "tipoDocId": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Tipo de documento de identificacion",
+      "description": "Definicion del codigo que indica el tipo de documento de identificacion teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 31, para NIT)"
+    },
+    "tipoPersona": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Tipo de persona u organizacion juridica",
+      "description": "Definicion del codigo que indica el tipo de organizacion juridica teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 1, para Persona Juridica)"
+    },
+    "tipoRegimen": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Tipo de regimen",
+      "description": "Definicion del codigo que indica el tipo de regimen teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 05, para Regimen Ordinario)"
+    },
+    "uuid": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "uuid": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD06: CUFE (Codigo unico de Facturacion Electronica) o CUDE (Codigo unico de Documento Electronico)",
+          "description": "Codigo unico de un documento electronico y que verifica la integridad de la informacion recibida. (Ejemplo: 8bb918b19ba22a694f1da11c643b5e9de39adf60311cf179179e9b33381030bcd4c3c3f156c506ed5908f9276f5bd9b4)"
+        },
+        "uuidType": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD08: Identificador del algoritmo",
+          "description": "Codigo que identifica el tipo de algortimo utilizado para calcular el CUFE o el CUDE. (Ejemplo: CUFE-SHA384)"
+        }
+      },
+      "description": "Definicion de grupo que permite informar el codigo unico de un documento electronico (CUFE/CUDE) teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": ["uuid", "uuidType"]
+    },
+    "valorMonetario": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "description": "Definicion del formato empleado en valores numericos."
+    },
+    "adquirientesRelacionales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "digitoVerificacion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1,
+            "pattern": "\\d[0-9]*",
+            "title": "DV del NIT",
+            "description": "Digito de Verificacion (DV) cuando es tipo de identificacion NIT teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 1, para 9006462511)"
+          },
+          "identificacionAr": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 30,
+            "pattern": "^(.*)$",
+            "title": "Numero de identificacion",
+            "description": "Numero de identificacion teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 9006462511, para Computec)"
+          },
+          "nombreAdquiriente": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 450,
+            "pattern": "^(.*)$",
+            "title": "Nombre o Razon Social",
+            "description": "Nombre o la razon social teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: COMPUTEC OUTSOURCING S.A.S.)"
+          },
+          "tipoIdentificacionAr": {
+            "$ref": "#/definitions/tipoDocId",
+            "title": "Identificador del tipo de identificacion",
+            "description": "Codigo que describe el tipo de identificacion teniendo en cuenta el anexo tecnico de la DIAN. (Ejemplo: 31, para NIT)"
+          },
+          "porcentajeParticipacionAr": {
+            "$ref": "#/definitions/porcentaje",
+            "title": "Para informar la participación individual de cada adquiriente.  Notificación: La sumatoria de todos los elementos ParticipationPercent debe sumar 100",
+            "description": "Porcentaje para informar la participacion del adquiriente"
+          },
+          "esPrimarioAr": {
+            "type": "string",
+            "title": "Adquiriente primario",
+            "description": "Define si el adquiriente es el primario"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "identificacionAr",
+          "nombreAdquiriente",
+          "tipoIdentificacionAr",
+          "porcentajeParticipacionAr"
+        ]
+      },
+      "description": "Grupo que permite informar la informacion de los adquirientes relacionales."
+    }
+  },
+  "type": "object",
+  "properties": {
+    "numDocumento": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Numero de documento",
+      "description": "Numero del documento conformado por el prefijo de facturacion y un consecutivo del rango de numeracion. (Ejemplo: OD5000)"
+    },
+    "tipoDocElect": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Tipo de documento electronico",
+      "description": "Codigo que describe el tipo de documento electronico. (Ejemplo: 01, para Factura de Venta Nacional)"
+    },
+    "adquirientes": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "title": "Adquiriente",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "detalleTributario": {
+            "$ref": "#/definitions/detalleTributario",
+            "title": "FAK39: Informacion de detlles tributarios del adquiriente",
+            "description": "Grupo para informar los detalles tributarios del adquiriente del documento electronico."
+          },
+          "direccion": {
+            "$ref": "#/definitions/direccion",
+            "title": "FAK07: Informacion con respecto a la localizacion fisica del adquiriente",
+            "description": "Grupo para informar la direccion fisica del adquiriente del documento electronico."
+          },
+          "infoContacto": {
+            "$ref": "#/definitions/infoContacto",
+            "title": "FAK51: Informacion de contacto del adquiriente",
+            "description": "Grupo para indicar la informacion de contacto del adquiriente del documento electronco."
+          },
+          "infoRut": {
+            "$ref": "#/definitions/infoRut",
+            "title": "FAK19: Informacion tributaria del adquiriente",
+            "description": "Grupo para indicar la informacion tributaria del adquiriente del documento electronico."
+          },
+          "nombreComercial": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAK06: Nombre comercial del adquiriente",
+            "description": "Nombre comercial del adquiriente del documento electronico. (Ejemplo: Tigo)"
+          },
+          "tipoPersona": {
+            "$ref": "#/definitions/tipoPersona",
+            "title": "FAK02: Identificador de tipo de persona",
+            "description": "Codigo que describe el tipo de persona u organizacion juridica del adquiriente del documento electronico. (Ejemplo: 1, para Persona Juridica)"
+          },
+          "porcentajeParticipacion": {
+            "$ref": "#/definitions/porcentaje",
+            "title": "Para informar la participación individual de cada adquiriente",
+            "description": "Porcentaje para informar la participacion del adquiriente, Notificación: La sumatoria de todos los elementos ParticipationPercent debe sumar 100"
+          },
+          "esPrimario": {
+            "$ref": "#/definitions/propiedadMapeoBoleano",
+            "title": "Para Definir si un adquiriente es primario",
+            "description": "Define si el adquiriente es el primario"
+          },
+          "adquirientesRelacionales": {
+            "$ref": "#/definitions/adquirientesRelacionales",
+            "title": "Para definir los adquirientes relacionales",
+            "description": "Grupo que permite informar la informacion de los adquirientes relacionales."
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "detalleTributario",
+          "infoRut",
+          "nombreComercial",
+          "tipoPersona"
+        ]
+      },
+      "title": "Adquirientes del documento",
+      "description": "Grupo que permite informar uno o mas adquirientes relacionados al documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "anticipos": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "fechaPagoRealizado": {
+            "$ref": "#/definitions/fecha",
+            "title": "FBD06: Fecha de pago realizado",
+            "description": "Fecha en la cual se realizo el pago relacionado. (Ejemplo: 2019-06-30)"
+          },
+          "fechaPagoRecibido": {
+            "$ref": "#/definitions/fecha",
+            "title": "FBD05: Fecha de pago recibido",
+            "description": "Fecha en la cual fue recibido el pago relacionado. (Ejemplo: 2019-07-01)"
+          },
+          "horaPagoRealizado": {
+            "$ref": "#/definitions/hora",
+            "title": "FBD07: Hora de pago realizado",
+            "description": "Hora en la cual se realizo el pago relacionado. (Ejemplo: 14:30:00-05:00)"
+          },
+          "idAnticipo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBD02: Identificador del pago",
+            "description": "Identificador del pago relacionado. (Ejemplo: PRUE981341412)"
+          },
+          "notaAnticipo": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBD08: Instrucciones",
+            "description": "Campo de texto libre para informar las instrucciones relativas al pago o informacion adicional del mismo."
+          },
+          "valorAnticipo": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FBD03: Valor del pago",
+            "description": "Valor o monto del pago efectuado a relacionar en el documento electronico. (Ejemplo: 119900.00)"
+          }
+        },
+        "additionalProperties": false,
+        "required": ["idAnticipo", "valorAnticipo", "fechaPagoRecibido"]
+      },
+      "title": "Anticipos",
+      "description": "Grupo que permite informar uno o mas pagos anticipados relacionados al documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "autorizadoDescargar": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "dvAutorizado": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAL07: DV del NIT del autorizado",
+          "description": "Digito de Verificacion (DV) del NIT del autorizado a descargar el documento electronico. (Ejemplo: 1, para 9006462511)"
+        },
+        "idAutorizado": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAL02: Identificacion del autorizado para descargar documentos",
+          "description": "Numero de Identificacion del autorizado a descargar el documento electronico. (Ejemplo: 9006462511, para Computec Outsourcing SAS)"
+        },
+        "tipoIdAutorizado": {
+          "$ref": "#/definitions/tipoDocId",
+          "title": "FAL06: Identificador del tipo de documento de identidad",
+          "description": "Codigo que describe el tipo de documento de identificacion del autorizado a descargar el documento electronco. (Ejemplo: 31, para NIT)"
+        }
+      },
+      "description": "Grupo que permite informar el autorizado a descargar el documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": ["idAutorizado", "tipoIdAutorizado"],
+      "title": "Autorizado a descargar documento"
+    },
+    "cabeceraFactura": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "ambiente": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD04/CAD04/DAD04: Codigo de ambiente de destino",
+          "description": "Codigo que describe el ambiente de destino donde sera procesada la validacion previa de este documento electronico. (Ejemplo: 2, para Pruebas)"
+        },
+        "canalVentas": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Canal de Ventas",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "cantidadDetalles": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD16: Numero o cantidad de lineas de detalle del documento electronico",
+          "description": "Numero que indica la cantidad de lineas de detalle que contiene el documento electronico. (Ejemplo: 5)"
+        },
+        "descripcion": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD13: Informacion adicional",
+          "description": "Texto libre para incluir informacion adicional relativa al documento electronico (Ejemplo: Facturacion de Servicio de Arrendamiento de Equipos)"
+        },
+        "fechaEmision": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAD09: Fecha de emision del documento",
+          "description": "Fecha en la cual se emitio el documento electronico (Ejemplo: 2019-07-01)"
+        },
+        "fechaPagoImpuestos": {
+          "$ref": "#/definitions/fecha",
+          "title": "*RG: Fecha de Pago de Impuestos",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "fechaSuspension": {
+          "$ref": "#/definitions/fecha",
+          "title": "*RG: Fecha de Suspension",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "fechaVencimiento": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAD11: Fecha de vencimiento de la factura",
+          "description": "Fecha en la cual se vence la factura electronica (Ejemplo: 2019-08-01)"
+        },
+        "horaEmision": {
+          "$ref": "#/definitions/hora",
+          "title": "FAD10: Hora de emision del documento",
+          "description": "Hora en la cual se emitio el documento electronico (Ejemplo: 08:30:00-05:00)"
+        },
+        "lineaResumen": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Linea de Resumen",
+          "description": "Campo opcional empleado para construir el CUFE."
+        },
+        "monedaDocumento": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD15: Divisa del documento electronico",
+          "description": "Codigo que describe la moneda o divisa que se aplica a todo el documento electronico. (Ejemplo: COP, para Peso Colombiano)"
+        },
+        "numeroCuenta": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Numero de Cuenta",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "numeroPedido": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Numero de Pedido",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "operacion": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAD02/CAD02/DAD02: Indicador de tipo de operacion",
+          "description": "Codigo que describe el tipo de operacion empleada con el documento electronico. (Ejemplo: 10, para operacion estandar)"
+        },
+        "sucursal": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Sucursal",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "uuid": {
+          "$ref": "#/definitions/uuid",
+          "title": "FAD06: UUID",
+          "description": "Codigo unico de Factura Electronica (CUFE) o de Documento Electronico (CUDE) que permite identificar un documento electronico."
+        }
+      },
+      "description": "Grupo que permite indicar la informacion raiz del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": [
+        "ambiente",
+        "cantidadDetalles",
+        "fechaEmision",
+        "horaEmision",
+        "monedaDocumento",
+        "operacion",
+        "uuid"
+      ],
+      "title": "Información basica documento"
+    },
+    "datosProceso": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "nombreArchivoOrigen": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "Nombre Insumo",
+          "Descripcion": "nombre del archivo origen"
+        },
+        "ciclo": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "ciclo facturacion",
+          "Descripcion": "Asunto del correo a enviar"
+        },
+        "noProceso": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "numero proceso",
+          "Descripcion": "Numero u Orden de Proceso"
+        },
+        "campoAlmacenamiento1": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "almacenamiento1",
+          "Descripcion": "Campo 1 adicional Almacenamiento"
+        },
+        "campoAlmacenamiento2": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "almacenamiento2",
+          "Descripcion": "Campo 2 adicional Almacenamiento"
+        },
+        "campoAlmacenamiento3": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "almacenamiento3",
+          "Descripcion": "Campo 3 adicional Almacenamiento"
+        },
+        "campoAlmacenamiento4": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "almacenamiento4",
+          "Descripcion": "Campo 4 adicional Almacenamiento"
+        },
+        "campoAlmacenamiento5": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "almacenamiento5",
+          "Descripcion": "Campo 5 adicional Almacenamiento"
+        }
+      }
+    },
+    "camposCustom": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "negocio": {
+          "type": "object",
+          "options": {
+            "collapsed": true
+          },
+          "properties": {
+            "adjunto": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Adjunto",
+              "Descripcion": "nombre del adjunto para el documento"
+            },
+            "asunto": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Asunto del correo",
+              "Descripcion": "Asunto del correo a enviar"
+            },
+            "claveDocumento": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Clave del documento cuando es cifrada",
+              "Descripcion": "Clave con la que se abrira el adjunto"
+            },
+            "envio": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Parametro de envio",
+              "Descripcion": "Parametro que indica los canales de envio del documento"
+            },
+            "emailAdquiriente": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Email adquiriente",
+              "Descripcion": "Parametro que indica el/los correos donde se debe enviar el documento"
+            }
+          },
+          "additionalProperties": false
+        },
+        "representacionGrafica": {
+          "type": "object",
+          "options": {
+            "collapsed": true
+          },
+          "properties": {
+            "codigoBarras": {
+              "type": "array",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "type": "object",
+                "title": "codigo barras",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "identificador": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Identificador del campo",
+                    "description": "Codigo que permite identificar el campo relacionado."
+                  },
+                  "valor": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Valor del campo",
+                    "description": "Valor del campo relacionado."
+                  }
+                },
+                "description": "Definicion para campos genericos de tipo 'Llave - Valor'",
+                "additionalProperties": false,
+                "required": ["identificador", "valor"]
+              }
+            },
+            "codigoCentroCostos": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Codigo centro costos",
+              "Descripcion": "Codigo del centro de costos"
+            },
+            "codigoContabilidad": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Codigo contabilidad",
+              "Descripcion": "codigo usado en contabilidad"
+            },
+            "codigoQR": {
+              "type": "array",
+              "title": "Codigo QR",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "type": "object",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "identificador": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Identificador del campo",
+                    "description": "Codigo que permite identificar el campo relacionado."
+                  },
+                  "valor": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Valor del campo",
+                    "description": "Valor del campo relacionado."
+                  }
+                },
+                "description": "Definicion para campos genericos de tipo 'Llave - Valor'",
+                "additionalProperties": false,
+                "required": ["identificador", "valor"]
+              }
+            },
+            "codigoZona": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Codigo Zona",
+              "description": "Identificador zona distribucion"
+            },
+            "contrato": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Contrato",
+              "Descripcion": "Numero de contrato"
+            },
+            "entregadoA": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Entregado a",
+              "Descripcion": "Informacion de a quien de debe entregar el documento"
+            },
+            "imagenMarcaAgua": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Imagen marca de agua",
+              "Descripcion": "Imagen marca de agua"
+            },
+            "infoMedioRecaudo": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Informacion medio de recaudo",
+              "Descripcion": "Informacion medio de recaudo"
+            },
+            "nombreVendedor": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Vendedor",
+              "Descripcion": "Nombre del vendedor"
+            },
+            "notas": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Nota del documento",
+              "Descripcion": "Nota adicional del documento"
+            },
+            "observaciones": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Observacion del documento",
+              "Descripcion": "Observacion adicional del documento"
+            },
+            "opcionales": {
+              "type": "array",
+              "title": "Opcional",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "title": "Opcional",
+                "$ref": "#/definitions/opcional"
+              }
+            },
+            "opcionalesCompuestos": {
+              "type": "array",
+              "title": "Opcional compuesto",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "$ref": "#/definitions/opcionalCompuesto"
+              }
+            },
+            "paisNombreCompleto": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Nombre pais completo",
+              "Descripcion": "Nombre pais completo"
+            },
+            "pagoRealizado": {
+              "type": "array",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "type": "object",
+                "title": "Pago realizado",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "descripcion": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Descripcion del pago realizado",
+                    "Descripcion": "Descripcion del pago realizado"
+                  },
+                  "fechaPago": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Fecha en la que se hizo el pago",
+                    "Descripcion": "Fecha en la que se hizo el pago"
+                  },
+                  "montoPago": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Monto pagado",
+                    "Descripcion": "Monto pagado"
+                  }
+                },
+                "additionalProperties": false,
+                "required": ["descripcion", "fechaPago", "montoPago"]
+              }
+            },
+            "plantillaAsociadaRG": {
+              "type": "array",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "type": "object",
+                "title": "Plantilla asociada",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "identificador": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Identificador del campo",
+                    "description": "Codigo que permite identificar el campo relacionado."
+                  },
+                  "valor": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Valor del campo",
+                    "description": "Valor del campo relacionado."
+                  }
+                },
+                "description": "Definicion para campos genericos de tipo 'Llave - Valor'",
+                "additionalProperties": false,
+                "required": ["identificador", "valor"]
+              }
+            },
+            "proyecto": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Nombre proyecto",
+              "description": "Opcional para poner nombre del proyecto"
+            },
+            "saldoAnterior": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Saldo anterior",
+              "description": "Valor del saldo anterior"
+            },
+            "selloMandato": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Sello mandato",
+              "description": "Opcional para poner el texto del sello mandato"
+            },
+            "subtotalesOpcional": {
+              "type": "array",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "type": "object",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "identificador": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Identificador del campo",
+                    "description": "Codigo que permite identificar el campo relacionado."
+                  },
+                  "valor": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Valor del campo",
+                    "description": "Valor del campo relacionado."
+                  }
+                },
+                "description": "Definicion para campos genericos de tipo 'Llave - Valor'",
+                "additionalProperties": false,
+                "required": ["identificador", "valor"]
+              }
+            },
+            "tablas": {
+              "type": "array",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "$ref": "#/definitions/tabla"
+              }
+            },
+            "textoMarcaAgua": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Texto marca de agua",
+              "description": "Texto de la marca de agua"
+            },
+            "tipoCliente": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Tipo de cliente",
+              "description": "Valor del tipo de cliente."
+            },
+            "tipoEstablecimiento": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Tipo establecimiento",
+              "description": "Valor del tipo de establecimiento"
+            },
+            "totalesOpcional": {
+              "type": "array",
+              "options": {
+                "collapsed": true
+              },
+              "items": {
+                "type": "object",
+                "title": "Total opcional",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "identificador": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Identificador del campo",
+                    "description": "Codigo que permite identificar el campo relacionado."
+                  },
+                  "valor": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "Valor del campo",
+                    "description": "Valor del campo relacionado."
+                  }
+                },
+                "description": "Definicion para campos genericos de tipo 'Llave - Valor'",
+                "additionalProperties": false,
+                "required": ["identificador", "valor"]
+              }
+            },
+            "totalValorFlete": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Valor del flete",
+              "description": "Valor del flete."
+            },
+            "valorLetras": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Valor en letras",
+              "Descripcion": "Valor a pagar en letras"
+            },
+            "valorPagoAnticipado": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Valor pago anticipado",
+              "Descripcion": "Valor pago anticipado"
+            },
+            "zonaGeografica": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "Valor pago anticipado",
+              "Descripcion": "Valor pago anticipado"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "description": "Grupo que permite indicar informacion adicional requerida para el negocio o para representar graficamente el documento electronico.",
+      "additionalProperties": false,
+      "title": "Campos personalizados"
+    },
+    "cargos": {
+      "$ref": "#/definitions/cargo",
+      "title": "FAQ01: Informacion relacionada con cargos",
+      "description": "Grupo que permite informar los cargos aplicados a nivel del documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "descuentos": {
+      "$ref": "#/definitions/descuento",
+      "title": "FAQ01: Informacion relacionada con descuentos",
+      "description": "Grupo que permite informar los descuentos aplicados a nivel del documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "detalles": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "title": "Linea detalle",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "cantidadUnidades": {
+            "$ref": "#/definitions/decimalOrNumeric",
+            "title": "FAV04: Cantidad del producto o servicio",
+            "description": "Campo que indica la cantidad de un producto o servicio. (Ejemplo: 100)"
+          },
+          "cargosLinea": {
+            "$ref": "#/definitions/cargoLinea",
+            "title": "FBE01: Informacion relacionada con cargos",
+            "description": "Grupo que permite informar los cargos aplicados a la linea de detalle del documento electronico."
+          },
+          "descuentosLinea": {
+            "$ref": "#/definitions/descuentoLinea",
+            "title": "FBE01: Informacion relacionada con descuentos",
+            "description": "Grupo que permite informar los descuentos aplicados a la linea de detalle del documento electronico."
+          },
+          "esGratis": {
+            "$ref": "#/definitions/propiedadMapeoBoleano",
+            "title": "Indicador de regalo o muetsra comercial",
+            "description": "Campo que permite indicar si la linea de detalle del documento electronico es una muestra o regalo comercial."
+          },
+          "fechaServicioFin": {
+            "$ref": "#/definitions/fecha",
+            "title": "*RG: Fecha de Inicio del Servicio",
+            "description": "Campo opcional empleado para representar graficamente."
+          },
+          "fechaServicioIni": {
+            "$ref": "#/definitions/fecha",
+            "title": "*RG: Fecha Final del Servicio",
+            "description": "Campo opcional empleado para representar graficamente."
+          },
+          "idLinea": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAV02: Numero de la linea",
+            "description": "Identificador o numero de la linea de detalle. (Ejemplo: 1)"
+          },
+          "impuestos": {
+            "$ref": "#/definitions/impuesto",
+            "title": "FAX01: Informacion relacionada con tributos",
+            "description": "Grupo que permite informar los impuestos (enunciados en porcentaje) aplicados a la linea de detalle del documento electronico."
+          },
+          "impuestosNominales": {
+            "$ref": "#/definitions/impuestoNominal",
+            "title": "FAX01: Informacion relacionada con tributos",
+            "description": "Grupo que permite informar los impuestos (enunciados en valores nominales) aplicados a la linea de detalle del documento electronico."
+          },
+          "notaDetalle": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAV03: Información Adicional: Texto libre para añadir información adicional al artículo. Campo Obligatorio para informar facturas por contratos de servicio tipo AIU y bienes cubiertos ",
+            "description": "Capmo Obligatorio de informar para el caso de facturas por contratos de servicio tipo AIU. Para el ítem Adminsitración. En este caso la cbc:Note debe empezar por el texto: Contrato de servicios AIU por concepto de: El contribuyente debe incluir el objeto del contrato "
+          },
+          "item": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "cantidadPorEmpaque": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAZ03: Cantidad de unidades por empaque",
+                "description": "Cantidad de unidades del producto por cada empaque. (Ejemplo: 12)"
+              },
+              "descripcion": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAZ02: Descripcion",
+                "description": "Descripcion del articulo o servicio al que hace referencia la linea de detalle del documento electronico."
+              },
+              "identificacionEstandar": {
+                "type": "array",
+                "options": {
+                  "collapsed": true
+                },
+                "items": {
+                  "type": "object",
+                  "title": "Identificador",
+                  "options": {
+                    "collapsed": true
+                  },
+                  "properties": {
+                    "codEstandarItem": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FAZ10: Codigo del item",
+                      "description": "Codigo del item referenciado en la linea de detalle del documento electronico de acuerdo al estandar."
+                    },
+                    "tipoEstandar": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FAZ10: Codigo del Estandar",
+                      "description": "Codigo del estandar empleado para identificar el item referenciado en la linea de detalle del documento electronico."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["tipoEstandar", "codEstandarItem"]
+                },
+                "minItems": 1,
+                "title": "Identificador Item"
+              },
+              "marca": {
+                "type": "array",
+                "options": {
+                  "collapsed": true
+                },
+                "maxItems": 3,
+                "items": {
+                  "$ref": "#/definitions/propiedadMapeo",
+                  "title": "FAZ04: Marca",
+                  "description": "Marca del articulo."
+                }
+              },
+              "modelo": {
+                "type": "array",
+                "options": {
+                  "collapsed": true
+                },
+                "maxItems": 3,
+                "items": {
+                  "$ref": "#/definitions/propiedadMapeo",
+                  "title": "FAZ05: Modelo",
+                  "description": "Modelo del articulo."
+                }
+              },
+              "propiedadesAdicionales": {
+                "type": "array",
+                "options": {
+                  "collapsed": true
+                },
+                "items": {
+                  "type": "object",
+                  "options": {
+                    "collapsed": true
+                  },
+                  "properties": {
+                    "caracteristica": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FBF02: Caracteristica",
+                      "description": "Caracteristica que se quiere informar del item referenciado en la linea de detalle del documento electronico."
+                    },
+                    "valor": {
+                      "$ref": "#/definitions/propiedadMapeo",
+                      "title": "FBF02: Valor",
+                      "description": "Valor de la caracteristica que se quiere informar del item referenciado en la linea de detalle del documento electronico."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "required": ["caracteristica", "valor"]
+                }
+              },
+              "vendedor": {
+                "type": "object",
+                "options": {
+                  "collapsed": true
+                },
+                "properties": {
+                  "codVendedor": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "FAZ07: Codigo del vendedor",
+                    "description": "Codigo o identificador del vendedor correspondiente al articulo."
+                  },
+                  "codVendedorSubItem": {
+                    "$ref": "#/definitions/propiedadMapeo",
+                    "title": "FAZ07: Codigo del vendedor",
+                    "description": "Codigo o identificador del vendedor correspondiente a una subespecificacion del articulo."
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "description": "Grupo que permite indicar la informacion del item relacionado en la linea de detalle del documento electronico.",
+            "additionalProperties": false,
+            "required": ["identificacionEstandar", "descripcion"]
+          },
+          "mandatario": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "dvIdMandatario": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FBA07: DV del NIT del mandante",
+                "description": "Digito de Verificacion (DV) del Numero de Identificacion Tributaria (NIT) del mandante. (Ejemplo: 1, 9006462511)"
+              },
+              "idMandatario": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FBA05: NIT del mandante",
+                "description": "Numero de Identificacion Tributaria (NIT) del mandante. (Ejemplo: 9006462511)"
+              },
+              "tipoIdMandatario": {
+                "$ref": "#/definitions/tipoDocId",
+                "title": "FBA08: Identificador del tipo de identificacion",
+                "description": "Codigo que describe el tipo de documento de identificacion del mandante. (Ejemplo: 31, para NIT)"
+              },
+              "nombreMandatario": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "*RG: Nombre del mandante",
+                "description": "Campo opcional que permite incluir el nombre del mandante para ser repre graficamente."
+              }
+            },
+            "additionalProperties": false,
+            "required": ["dvIdMandatario", "idMandatario", "tipoIdMandatario"]
+          },
+          "nombreItem": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAV03: Descripcion",
+            "description": "Campo de texto libre para incluir informacion adicional del producto o servicio."
+          },
+          "opcionales": {
+            "type": "array",
+            "options": {
+              "collapsed": true
+            },
+            "items": {
+              "$ref": "#/definitions/opcional",
+              "title": "Campos Opcionales",
+              "description": "Lista de campos opcionales que permiten incluir informacion adicional de la linea de detalle del documento electronico."
+            }
+          },
+          "precioRefItemRegalo": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "codigoTipoPrecio": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAW05: Codigo del tipo de precio",
+                "description": "Codigo que describe el tipo de precio del producto o servicio. (Ejemplo: 01, para Valor Comercial)"
+              },
+              "valorArticulo": {
+                "$ref": "#/definitions/valorMonetario",
+                "title": "FAW03: Valor del articulo o servicio",
+                "description": "Valor del precio de referencia del item que se da como muestra o regalo comercial. (Ejemplo: 249900.00)"
+              }
+            },
+            "additionalProperties": false,
+            "required": ["codigoTipoPrecio", "valorArticulo"]
+          },
+          "precio": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "valorUnidad": {
+                "$ref": "#/definitions/valorMonetario",
+                "title": "FBB02: Valor del articulo o servicio",
+                "description": "Valor unitario del articulo o servicio referenciado en la linea de detalle del documento electroncio. (Ejemplo: 19900.0)"
+              },
+              "cantUnidAplicaPrecio": {
+                "$ref": "#/definitions/decimalOrNumeric",
+                "title": "FBB04: Cantidad real",
+                "description": "Cantidad real sobre la cual aplica el precio. (10)"
+              },
+              "unidadCantArticulos": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FBB05: Unidad de la cantidad",
+                "description": "Codigo que describe la unidad de la cantidad. (Ejemplo: LBR, para Libra)"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "valorUnidad",
+              "cantUnidAplicaPrecio",
+              "unidadCantArticulos"
+            ]
+          },
+          "unidadCantUnidades": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FAV05: Identificacion de la unidad de medida",
+            "description": "Codigo que describe la unidad de medida de la cantidad. (Ejemplo: NIU, para numero de unidades internacionales)"
+          },
+          "valorLinea": {
+            "$ref": "#/definitions/valorMonetario",
+            "title": "FAV06: Valor total de la linea",
+            "description": "Valor total de la linea de detalle calculado como 'Cantidad * Precio + Cargos - Descuentos'"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "cantidadUnidades",
+          "esGratis",
+          "idLinea",
+          "item",
+          "nombreItem",
+          "precio",
+          "unidadCantUnidades",
+          "valorLinea"
+        ]
+      },
+      "minItems": 1,
+      "title": "Lineas de detalle documento",
+      "description": "Grupo que permite indicar la informacion de cada una de las lineas de detalle del documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "infoEntregaBienes": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "fechaSalidaBienes": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAM04: Fecha efectiva de salida de los bienes",
+          "description": "Fecha en la cual se hace efectiva la salida de los bienes del documento electronico. (Ejemplo: 2019-10-01)"
+        },
+        "horaSalidaBienes": {
+          "$ref": "#/definitions/hora",
+          "title": "FAM03: Hora efectiva de salida de los bienes",
+          "description": "Hora en la cual se hace efectiva la salida de los bienes del documento electronico. (Ejemplo: 12:30:00-05:00)"
+        },
+        "direccionEntrega": {
+          "$ref": "#/definitions/direccion",
+          "title": "FAM04: Informacion con respecto a la direccion de entrega",
+          "description": "Grupo para informar la direccion de entrega de los bienes del documento electronico."
+        },
+        "transportista": {
+          "type": "object",
+          "options": {
+            "collapsed": true
+          },
+          "properties": {
+            "detalleTributario": {
+              "$ref": "#/definitions/detalleTributario",
+              "title": "FAM50: Informacion de detalles tributarios de la empresa de transporte",
+              "description": "Grupo para informar los detalles tributarios de la empresa de transporte."
+            },
+            "direccion": {
+              "$ref": "#/definitions/direccion",
+              "title": "FAM18: Informacion con respecto a la localizacion de la empresa de transporte",
+              "description": "Grupo para informar la direccion de la empresa de transporte"
+            },
+            "infoRut": {
+              "$ref": "#/definitions/infoRut",
+              "title": "FAM30: Informacion tributaria del transportador",
+              "description": "Grupo para indicar la informacion tributaria del transportador."
+            },
+            "nombreComercial": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "FAM17: Nombre comercial de la empresa de transporte",
+              "description": "Nombre comercial de la empresa de transporte. (Ejemplo: DATACOURRIER S.A.S.)"
+            },
+            "infoContacto": {
+              "$ref": "#/definitions/infoContacto",
+              "title": "FAM62: Informacion de contacto del transportador",
+              "description": "Grupo para indicar la informacion de contacto del transportador."
+            }
+          },
+          "description": "Grupo que permite indicar la informacion de entrega de los bienes del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+          "additionalProperties": false,
+          "required": ["detalleTributario", "infoRut", "nombreComercial"]
+        }
+      },
+      "additionalProperties": false,
+      "title": "Información de la entrega de bienes"
+    },
+    "infoResolucion": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "fechaFin": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAB08: Fecha final de la autorizacion de la numeracion",
+          "description": "Fecha que indica el final de la autorizacion de la numeracion o resolucion otorgada por la DIAN. (Ejemplo: 2028-12-31)"
+        },
+        "fechaInicio": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAB07: Fecha de inicio de la autorizacion de la numeracion",
+          "description": "Fecha que indica el inicio de la autorizacion de la numeracion o resolucion otorgada por la DIAN. (Ejemplo: 2018-01-01)"
+        },
+        "numResolucion": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAB06: Numero autorizacion: Numero del codigo de la resolucion otorgada para la numeracion",
+          "description": "Numero de autorizacion o resolucion otorgado por la DIAN. (Ejemplo: 18762007639530)"
+        },
+        "prefijoFacturacion": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAB10: Prefijo de la autorizacion de numeracion de facturacion dado por el SIE de Numeracion",
+          "description": "Prefijo del numero de autorizacion o resolucion empleado para la facturacion del documento. (Ejemplo: OD)"
+        },
+        "rangoInicio": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAB11: Valor inicial del rango de numeracion otorgado",
+          "description": "Valor que indica el inicio del rango de numeracion otorgado por la DIAN. (Ejemplo: 3000)"
+        },
+        "rangoFin": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAB12: Valor final del rango de numeracion otorgado",
+          "description": "Valor que indica el final del rango de numeracion otorgado por la DIAN. (Ejemplo: 10000)"
+        }
+      },
+      "title": "Información de la resolución de facturación",
+      "description": "Grupo que permite indicar la informacion relacionada con el numero de resolucion de la factura electronica teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": [
+        "numResolucion",
+        "fechaInicio",
+        "fechaFin",
+        "prefijoFacturacion",
+        "rangoInicio",
+        "rangoFin"
+      ]
+    },
+    "lenguaje": {
+      "$ref": "#/definitions/propiedadMapeo",
+      "title": "Codigo del lenguaje",
+      "description": "Codigo identificador del lenguaje (enviar un valor de la columna 'ISO 639-1') segun tabla definida por la DIAN en Anexo tecnico de factura electronica. (Ejemplo: es, para Español)"
+    },
+    "medioPago": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "codBanco": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Codigo de Banco",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "codRefPago": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Codigo de referencia de pago",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "diasParaPago": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Dias para Pago",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "fechaPago": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Fecha de Pago",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "fechaVencimiento": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAN04: Fecha de vencimiento de la factura",
+          "description": "Fecha en la cual se vence la factura electronica. (Ejemplo: 2019-08-30)"
+        },
+        "idMedioPago": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAN03: Medio de pago",
+          "description": "Codigo que describe el medio de pago empleado en el pago. (Ejemplo: 10, para Efectivo)"
+        },
+        "idMetodoPago": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAN02: Metodo de pago",
+          "description": "Codigo que describe el metodo empleado en el pago. (Ejemplo: 2, para Contado)"
+        },
+        "nombreBanco": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Nombre del Banco",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "numCtaBancaria": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Numero de Cuenta Bancaria",
+          "description": "Campo opcional empleado para representar graficamente."
+        },
+        "numeroTransferencia": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "*RG: Numero de Transferencia",
+          "description": "Campo opcional empleado para representar graficamente."
+        }
+      },
+      "title": "Información medio de pago del documento",
+      "description": "Grupo que permite indicar la informacion del pago del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": ["idMetodoPago", "idMedioPago"]
+    },
+    "motivosNota": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "codCorreccion": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CBF03: Codigo de la correccion",
+            "description": "Codigo que describe el tipo de correccion aplicado con la nota. (Ejemplo: 1, para Intereses en notas credito)"
+          },
+          "descripcionCorreccion": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CBF04: Descripcion de la naturaleza",
+            "description": "Campo de texto libre para informar la descripcion de la naturaleza de la correccion."
+          },
+          "idReferencia": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "CBF02: Identificador de la seccion",
+            "description": "Identificador de la seccion de la factura electronica original a la cual se aplica la correccion."
+          }
+        },
+        "description": "Grupo que permite indicar la informacion sobre la naturaleza de la nota teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false,
+        "required": ["descripcionCorreccion"]
+      },
+      "title": "Motivos de las notas crédito/débito"
+    },
+    "obligado": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "codigoCiiu": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAJ04: Codigo de actividad economica CIIU",
+          "description": "Codigo que describe el tipo de actividad economica del emisor. (Ejemplo: 7020)"
+        },
+        "detalleRegistro": {
+          "type": "object",
+          "options": {
+            "collapsed": true
+          },
+          "description": "Informacion de registro del emisor",
+          "properties": {
+            "matriculaMercantil": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "FAJ51: Numero de matricula mercantil",
+              "description": "Numero de matricula mercantil del emisor del documento electronico."
+            },
+            "prefijoFacturacion": {
+              "$ref": "#/definitions/propiedadMapeo",
+              "title": "FAJ50: Prefijo de la facturacion usada para el punto de venta",
+              "description": "Prefijo de facturacion empleado en el punto de venta (debe ser igual al prefijo informado en el grupo 'infoResolucion'). (Ejemplo: OD)"
+            }
+          },
+          "additionalProperties": false,
+          "required": ["prefijoFacturacion"]
+        },
+        "detalleTributario": {
+          "$ref": "#/definitions/detalleTributario",
+          "title": "FAJ39: Detalles tributarios del emisor",
+          "description": "Grupo para informar los detalles tributarios del emisor del documento electronico."
+        },
+        "direccionFiscal": {
+          "$ref": "#/definitions/direccion",
+          "title": "FAJ28: Informacion con respecto a la direccion fiscal del emisor",
+          "description": "Grupo para informar la direccion fiscal del emisor del documento electronico."
+        },
+        "direccionFisica": {
+          "$ref": "#/definitions/direccion",
+          "title": "FAJ07: Informacion con respecto a la localizacion fisica del emisor",
+          "description": "Grupo para informar la direccion del luegar fisico de expedicion del documento electronico."
+        },
+        "dvNitObligado": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAJ24: DV del NIT del emisor",
+          "description": "Digito de Verificacion (DV) del NIT del emisor del documento electronico. (Ejemplo: 1, para 9006462511)"
+        },
+        "idObligado": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAJ21: NIT del emisor",
+          "description": "Numero de Identificacion Tributaria (NIT) del emisor del documento electronico. (Ejemplo: 9006462511, para Computec Outsourcing SAS)"
+        },
+        "nombreComercial": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAJ06: Nombre comercial del emisor",
+          "description": "Nombre comercial del emisor del documento electronico empleado en la representacion grafica. (Ejemplo: Computec)"
+        },
+        "razonSocial": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAJ43: Nombre o Razon Social del emisor",
+          "description": "Nombre o Razon Social registrado en el RUT del emisor del documento electronico. (Ejemplo: COMPUTEC OUTSOURCING S.A.S.)"
+        },
+        "participanteConsorcio": {
+          "type": "array",
+          "options": {
+            "collapsed": true
+          },
+          "items": {
+            "type": "object",
+            "options": {
+              "collapsed": true
+            },
+            "properties": {
+              "detalleTributario": {
+                "$ref": "#/definitions/detalleTributario",
+                "title": "FAJ39: Detalles tributarios del Participante del Consorcio",
+                "description": "Grupo para informar los detalles tributarios del participante del consorcio."
+              },
+              "dvNitParticipante": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAJ60: DV del NIT del participante",
+                "description": "Digito de Verificacion (DV) del NIT del participante del consorcio. (Ejemplo: 4, para 9000365484)"
+              },
+              "idParticipante": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAJ57: ID del Participante del consorcio",
+                "description": "Numero de Identificacion Tributaria (NIT) del participante del consorcio. (Ejemplo: 9000365484)"
+              },
+              "tipoIdParticipante": {
+                "$ref": "#/definitions/tipoDocId",
+                "title": "FAJ61: Identificador del tipo de documento de identidad",
+                "description": "Codigo que describe el tipo de documento de identificacion del participante del consorcio (debe ser NIT). (Ejemplo: 31, para NIT)"
+              },
+              "nombreParticipante": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAJ56: Nombre o Razon Social del participante del consorcio",
+                "description": "Nombre o Razon Social del participante del consorcio."
+              },
+              "porcentajeParticipacion": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAJ53: Porcentaje de los participantes del consorcio",
+                "description": "Porcentaje del participante del consorcio. (Ejemplo: 50.00)"
+              },
+              "responsabilidadesParticipante": {
+                "$ref": "#/definitions/propiedadMapeo",
+                "title": "FAJ62: Obligaciones del Participante del Consorcio",
+                "description": "Codigo que describe el tipo de obligacion del participante del consorcio (en caso de ser varios, separar con ';'). (Ejemplo: O-13, para Gran Contribuyente)"
+              },
+              "tipoRegimen": {
+                "$ref": "#/definitions/tipoRegimen",
+                "title": "FAJ63: Regimen al que pertenece el emisor del consorcio",
+                "description": "Codigo que describe el tipo de regimen del participante del consorcio. (Ejemplo: 05, para Regimen Ordinario)"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "detalleTributario",
+              "nombreParticipante",
+              "porcentajeParticipacion",
+              "idParticipante",
+              "tipoIdParticipante",
+              "responsabilidadesParticipante",
+              "tipoRegimen"
+            ]
+          }
+        },
+        "responsabilidadesObligado": {
+          "$ref": "#/definitions/propiedadMapeo",
+          "title": "FAJ26: Obligaciones o responsabilidades del contribuyente",
+          "description": "Codigo que describe el tipo de obligacion del emisor del documento electronico (en caso de ser varios, separar con ';'). (Ejemplo: O-13, para Gran Contribuyente)"
+        },
+        "tipoIdObligado": {
+          "$ref": "#/definitions/tipoDocId",
+          "title": "FAJ25: Identificador del tipo de documento de identidad",
+          "description": "Codigo que describe el tipo de documento de identificacion del emisor (debe ser NIT) del documento electronco. (Ejemplo: 31, para NIT)"
+        },
+        "tipoPersona": {
+          "$ref": "#/definitions/tipoPersona",
+          "title": "FAJ02: Identificador de tipo de organizacion juridica de la de persona",
+          "description": "Codigo que describe el tipo de organizacion juridica del emisor (obligado) del documento electronico. (Ejemplo: 1, para Persona Juridica)"
+        },
+        "tipoRegimen": {
+          "$ref": "#/definitions/tipoRegimen",
+          "title": "FAJ27: Tipo de regimen",
+          "description": "Codigo que describe el tipo de regimen del emisor del documento electronico. (Ejemplo: 05, para Regimen Ordinario)"
+        },
+        "infoContacto": {
+          "$ref": "#/definitions/infoContacto",
+          "title": "FAJ67: Informacion de contacto del emisor",
+          "description": "Grupo para indicar la informacion de contacto del emisor del documento electronico."
+        }
+      },
+      "title": "Información del emisor (Obligado)",
+      "description": "Grupo que permite indicar la informacion del emisor (obligado) del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": [
+        "detalleRegistro",
+        "detalleTributario",
+        "direccionFiscal",
+        "direccionFisica",
+        "dvNitObligado",
+        "idObligado",
+        "nombreComercial",
+        "razonSocial",
+        "responsabilidadesObligado",
+        "tipoIdObligado",
+        "tipoPersona",
+        "tipoRegimen"
+      ]
+    },
+    "periodoFacturacion": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "fechaInicio": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAE02: Fecha de inicio del periodo de facturacion",
+          "description": "Fecha que indica el inicio del periodo de facturacion del documento electronico (Ejemplo: 2019-07-01)"
+        },
+        "horaInicio": {
+          "$ref": "#/definitions/hora",
+          "title": "FAE03: Hora de inicio del periodo de facturacion",
+          "description": "Hora que indica el inicio del periodo de facturacion del documento electronico (Ejemplo: 00:00:00-05:00)"
+        },
+        "fechaFin": {
+          "$ref": "#/definitions/fecha",
+          "title": "FAE04: Fecha de fin del periodo de facturacion",
+          "description": "Fecha que indica el final del periodo de facturacion del documento electronico (Ejemplo: 2019-07-31)"
+        },
+        "horaFin": {
+          "$ref": "#/definitions/hora",
+          "title": "FAE05: Hora de fin del periodo de facturacion",
+          "description": "Hora que indica el final del periodo de facturacion del documento electronico (Ejemplo: 23:59:59-05:00)"
+        }
+      },
+      "title": "Información periodo de facturación",
+      "additionalProperties": false,
+      "required": ["fechaInicio", "fechaFin"]
+    },
+    "refDocDespacho": {
+      "$ref": "#/definitions/refDespacho",
+      "title": "CAG01: Grupo que describe los documentos de despacho para el documento electronico",
+      "description": "Grupo para informar los documentos de despacho para el documento electronico"
+    },
+    "refDocRecibo": {
+      "$ref": "#/definitions/refRecibo",
+      "title": "CAH01: Grupo que describe los documentos de recepcion para el documento electronico",
+      "description": "Grupo para informar los documentos de recepcion para el documento electronico"
+    },
+    "refFacturacionFacturas": {
+      "$ref": "#/definitions/refFacturacionFacturas",
+      "title": "CBF01/DBF01: Informacion de facturas electronicas afectadas por la nota credito o debito",
+      "description": "Grupo para informar las facturas electronicas que son afectadas por la nota credito o debito"
+    },
+    "refFacturacionNotas": {
+      "$ref": "#/definitions/refFacturacionNotas",
+      "title": "FBH01: Informacion de notas que dan origen a la factura electronica",
+      "description": "Grupo para informar las notas credito o debito que dan origen a una factura electronica"
+    },
+    "refOrdenCompra": {
+      "$ref": "#/definitions/refOCompra",
+      "title": "FAF01: Informacion que describe una exclusiva orden para el documento electronico",
+      "description": "Grupo para informar una orden para el documento electronico"
+    },
+    "refOtroDocumento": {
+      "$ref": "#/definitions/refOtroDoc",
+      "title": "CAI01: Grupo que describe los documentos adicionales de referencia para el documento electronico",
+      "description": "Grupo para informar los documentos adicionales de referencia para el documento electronico"
+    },
+    "tasaCambio": {
+      "$ref": "#/definitions/tasaCambio",
+      "title": "FAR01: Informacion relacionada con la tasa de cambio",
+      "description": "Grupo que permite indicar la informacion relacionada con la tasa de cambio del documento electronico."
+    },
+    "tasaCambioAlternativa": {
+      "$ref": "#/definitions/tasaCambio",
+      "title": "FGB01: Informacion relacionada con la tasa de cambio alternativa",
+      "description": "Grupo que permite indicar la informacion relacionada con la tasa de cambio alternativa del documento electronico."
+    },
+    "terminoEntrega": {
+      "type": "array",
+      "options": {
+        "collapsed": true
+      },
+      "items": {
+        "type": "object",
+        "options": {
+          "collapsed": true
+        },
+        "properties": {
+          "condicionEntrega": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBC04: Condicion de entrega",
+            "description": "Codigo que describe la condicion de entrega de los bienes. (Ejemplo: CFR, para Costo y Fletes)"
+          },
+          "idLinea": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBC02: Numero de Linea",
+            "description": "Identificador o numero de linea. (Ejemplo: 1)"
+          },
+          "metodoPagoTransporte": {
+            "$ref": "#/definitions/propiedadMapeo",
+            "title": "FBC03: Metodo de Pago",
+            "description": "Metodo de pago de los costos del transporte."
+          }
+        },
+        "description": "Grupo que permite indicar la informacion de los terminos de entrega de los bienes del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+        "additionalProperties": false
+      },
+      "title": "Términos de entrega - mercancías"
+    },
+    "totalImpuesto": {
+      "$ref": "#/definitions/impuesto",
+      "title": "Impuestos a nivel de documento",
+      "description": "Grupo que permite indicar la informacion de los totales de los tributos (enunciados en porcentaje) aplicados al documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "totalImpuestoNominal": {
+      "$ref": "#/definitions/impuestoNominal",
+      "title": "Impuestos nominales a nivel de documento",
+      "description": "Grupo que permite indicar la informacion de los totales de los tributos (enunciados en valores nominales) aplicados al documento electronico teniendo en cuenta el anexo tecnico de la DIAN."
+    },
+    "totales": {
+      "type": "object",
+      "options": {
+        "collapsed": true
+      },
+      "properties": {
+        "totalAntesImp": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU02: Total Valor Bruto",
+          "description": "Valor bruto antes de impuesto calculado como la sumatoria de los valores totales de cada una de las lineas de detalle del documento electronico."
+        },
+        "totalAnticipo": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU12: Anticipo Total",
+          "description": "Valor total de los anticipos calculado como la sumatoria de los valores de los anticipos relacionados al documento electronico."
+        },
+        "totalBaseImponible": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU04: Total Base Imponible",
+          "description": "Valor total de la base imponible calculado como la sumatoria de las bases imponibles de cada una de las lineas de detalle del documento electronico."
+        },
+        "totalCargo": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU10: Cargo Total",
+          "description": "Valor total de los cargos calculado como la sumatoria de los valores de los cargos globales relacionados al documento electronico."
+        },
+        "totalDescuento": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU08: Descuento Total",
+          "description": "Valor total de los descuentos calculado como la sumatoria de los valores de los descuentos globales relacionados al documento electronico."
+        },
+        "totalDespuesImp": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU06: Total de Valor Bruto mas Tributos",
+          "description": "Valor bruto mas impuestos calculado como la sumatoria del valor bruto antes de tributos y el total de los tributos aplicados al documento electronico."
+        },
+        "valorPagar": {
+          "$ref": "#/definitions/valorMonetario",
+          "title": "FAU14: Valor a Pagar",
+          "description": "Valor total a pagar calculado como 'Valor Bruto mas Tributos + - Descuento Total + Cargo Total - Anticipo Total' al documento electronico."
+        }
+      },
+      "title": "Totales del documento",
+      "description": "Grupo que permite indicar la informacion de los totales del documento electronico teniendo en cuenta el anexo tecnico de la DIAN.",
+      "additionalProperties": false,
+      "required": [
+        "totalAntesImp",
+        "totalBaseImponible",
+        "totalDespuesImp",
+        "valorPagar"
+      ]
+    },
+    "mapeoColecciones": {
+      "type": "array",
+      "items": {
+        "title": "info mapeo colección",
+        "$ref": "#/definitions/infoMapeoColeccion"
+      },
+      "options": {
+        "hidden": true
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "adquirientes",
+    "cabeceraFactura",
+    "detalles",
+    "numDocumento",
+    "obligado",
+    "tipoDocElect",
+    "totales"
+  ]
+}
