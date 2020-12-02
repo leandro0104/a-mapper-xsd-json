@@ -17,9 +17,9 @@ export class BodyComponent implements OnInit{
   private doc: any;
   allClients: any[] = [];
   allDocuments: any[] = [];
-
+  jsonFinal: any = {};
   constructor(@Inject(DOCUMENT) document, private mapper: MapperService) {
-
+    
     this.mapper.getClients()
    .subscribe( (data: any) => {
       //console.log(data);
@@ -61,14 +61,261 @@ export class BodyComponent implements OnInit{
       schema: jsonTemplate
     });
 
+    this.setJsonEditor();
+    this.jsonFinal = this.jsonEditor.getValue();
     //console.timeEnd();
     this.mapper.getJsonFormat().subscribe((data: any) => {
     });
   }
 
+// Funcion que va seteando el nuevo contenido al jsonFinal segun cada click que se haga en el html
+  setJson(){
+    this.jsonFinal = this.jsonEditor.getValue();
+  }
 
-
-
+  setJsonEditor(){
+    this.jsonEditor.setValue({
+      "numDocumento": {
+        "xPath": "/BILL_INFO/OPER_INFO/OPER_ADDR/ADDR2"
+      },
+      "tipoDocElect": {
+        "xPath": "/BILL_INFO/OPER_INFO/OPER_ADDR"
+      },
+      "adquirientes": [
+        {
+          "detalleTributario": [
+            {
+              "idTributo": {
+                "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+              },
+              "nombreTributo": {
+                "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+              }
+            }
+          ],
+          "infoRut": {
+            "identificacion": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "nombre": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "responsabilidades": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "tipoIdentificacion": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "tipoRegimen": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            }
+          },
+          "nombreComercial": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "tipoPersona": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        },
+        {
+          "detalleTributario": [
+            {
+              "idTributo": {
+                "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+              },
+              "nombreTributo": {
+                "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+              }
+            }
+          ],
+          "infoRut": {
+            "identificacion": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "nombre": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "responsabilidades": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "tipoIdentificacion": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "tipoRegimen": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            }
+          },
+          "nombreComercial": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "tipoPersona": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        }
+      ],
+      "cabeceraFactura": {
+        "ambiente": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "cantidadDetalles": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "fechaEmision": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "horaEmision": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "monedaDocumento": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "operacion": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "uuid": {
+          "uuid": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "uuidType": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        }
+      },
+      "detalles": [
+        {
+          "cantidadUnidades": {
+            "xPath": "/BILL_INFO/OPER_INFO/OPER_ADDR/MUNCIPAL"
+          },
+          "esGratis": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE",
+            "verdaderoCuando": "true"
+          },
+          "idLinea": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "item": {
+            "descripcion": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "identificacionEstandar": [
+              {
+                "codEstandarItem": {
+                  "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+                },
+                "tipoEstandar": {
+                  "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+                }
+              }
+            ]
+          },
+          "nombreItem": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "precio": {
+            "valorUnidad": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "cantUnidAplicaPrecio": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "unidadCantArticulos": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            }
+          },
+          "unidadCantUnidades": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "valorLinea": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        }
+      ],
+      "obligado": {
+        "detalleRegistro": {
+          "prefijoFacturacion": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        },
+        "detalleTributario": [
+          {
+            "idTributo": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            },
+            "nombreTributo": {
+              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+            }
+          }
+        ],
+        "direccionFiscal": {
+          "codigoDepto": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "codigoMunicipio": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "codigoPais": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "codigoPostal": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        },
+        "direccionFisica": {
+          "codigoDepto": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "codigoMunicipio": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "codigoPais": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          },
+          "codigoPostal": {
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+          }
+        },
+        "dvNitObligado": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "idObligado": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "nombreComercial": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "razonSocial": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "responsabilidadesObligado": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "tipoIdObligado": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "tipoPersona": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "tipoRegimen": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        }
+      },
+      "totales": {
+        "totalAntesImp": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "totalBaseImponible": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "totalDespuesImp": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "valorPagar": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        }
+      },
+      "anticipos": []
+    });
+  }
 
 
 

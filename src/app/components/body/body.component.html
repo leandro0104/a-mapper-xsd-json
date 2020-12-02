@@ -29,10 +29,12 @@
   </div>
 </div>
 <br>
-<div class="collapse container-fluid" id="collapseBody">
+<div id="collapseBody" (click)="setJson()">
   <div class="container-fluid">
     <div id="json-editor-body"></div>
   </div>
 </div>
 
 
+
+<pre>{{jsonFinal | json}}</pre>
