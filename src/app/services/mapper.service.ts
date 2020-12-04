@@ -16,11 +16,12 @@ export class MapperService {
     return this.http.get('https://run.mocky.io/v3/165f0e45-0833-4ecc-bbd1-826a1cc1bebf');
   }
 
-  getJsonFormat(){
-    return this.http.get('https://run.mocky.io/v3/13409f2e-8308-4476-9f7d-6442bab4e409');
-  }
-
-  GETXpathXML(){
+  getXpathXML(){
     return this.http.get('https://run.mocky.io/v3/025ebd07-7dc3-4f54-8c2a-c314f9ab6e07');
   }
+
+  obtainXpath(formData: FormData){
+     return this.http.post('http://localhost:8080/upload', formData);
+  }
+
 }

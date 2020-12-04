@@ -1,122 +1,128 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MapperService } from 'src/app/services/mapper.service';
-import { JSONEditor} from '@json-editor/json-editor';
+import { JSONEditor } from '@json-editor/json-editor';
 import { DOCUMENT } from '@angular/common';
 import jsonTemplate from '../../../assets/jsonTemplate.json';
+import {
+  FormBuilder,
+  FormGroup,
+  FormControl,
+  Validators,
+} from '@angular/forms';
+import { requiredFileType } from '../../utils/upload-file-validators';
 
 @Component({
   selector: 'app-body',
   templateUrl: './body.component.html',
-  styleUrls: ['./body.component.css']
+  styleUrls: ['./body.component.css'],
 })
-export class BodyComponent implements OnInit{
+export class BodyComponent implements OnInit {
 
-  mySchema: any;
+  mapperForm: FormGroup;
   jsonEditor: any;
-  allXpath: any[] = [];
-  private doc: any;
-  allClients: any[] = [];
-  allDocuments: any[] = [];
+  clientList: any[];
+  documentList: any[];
+  xpathList: any[];
+
   jsonFinal: any = {};
-  constructor(@Inject(DOCUMENT) document, private mapper: MapperService) {
-    
-    this.mapper.getClients()
-   .subscribe( (data: any) => {
-      //console.log(data);
-      this.allClients = data;
-   });
+  xsdFile: any = File;
 
-    this.mapper.getDocuments()
-   .subscribe( (data: any) => {
-     //console.log(data);
-     this.allDocuments = data;
-   });
-
-    this.doc = document;
-    this.mapper.GETXpathXML()
-   .subscribe((data: any) => {
-     //console.log(data);
-     this.allXpath = data;
-   });
-
-  }
+  constructor(
+    @Inject(DOCUMENT) document,
+    private mapperService: MapperService,
+    private formBuilder: FormBuilder
+  ) {}
 
   ngOnInit(): void {
+    this.loadFormData();
+    this.mapperForm = this.formBuilder.group({
+      cliente: ['', [Validators.required]],
+      tipoDocumento: ['', [Validators.required]],
+      xsdFile: ['', [Validators.required, requiredFileType('xsd')]],
+    });
   }
 
-  cargarDatos() {
-    console.time();
+  loadFormData(): void {
+    this.mapperService.getClients().subscribe(
+      (res: any) => {
+        this.clientList = res;
+      },
+      (err: any) => {
+        console.error('loadFormData()', err);
+      }
+    );
+    this.mapperService.getDocuments().subscribe(
+      (res: any) => {
+        this.documentList = res;
+      },
+      (err: any) => {
+        console.error('loadFormData()', err);
+      }
+    );
+    this.mapperService.getXpathXML().subscribe(
+      (res: any) => {
+        this.xpathList = res;
+      },
+      (err: any) => {
+        console.error('loadFormData()', err);
+      }
+    );
+  }
+
+  onFileChange(event: any): void {
+    if (event.target.files[0]) {
+      const { name } = event.target.files[0];
+      this.xsdFile = name;
+    }
+  }
+
+  cargar() {
+    /*this.idObligadoSeleccionado = this.forma.get('cliente').value;
+    this.idDocumentoSeleccionado = this.forma.get('tipoDoc').value;
+    this.Servicio.consultarDatos(this.idObligadoSeleccionado, this.idDocumentoSeleccionado)*/
+  console.log(this.mapperForm);
+  
+  }
+
+  cargarDatos(): any {
     const editorElem = document.getElementById('json-editor-body');
     jsonTemplate.definitions.etiquetasSelect.enum = [];
-    jsonTemplate.definitions.etiquetasSelect.enum = this.allXpath;
+    jsonTemplate.definitions.etiquetasSelect.enum = this.xpathList;
     JSONEditor.defaults.options.theme = 'bootstrap4';
     JSONEditor.defaults.options.iconlib = 'fontawesome5'; //'foundation2';
-    JSONEditor.defaults.options.show_errors = 'Always';
-    JSONEditor.defaults.options['display_required_only'] = true;
+    JSONEditor.defaults.options.display_required_only = true;
     JSONEditor.defaults.options.compact = true;
     JSONEditor.defaults.options.no_additional_properties = true;
     JSONEditor.defaults.options.disable_edit_json = true;
     JSONEditor.defaults.options.disable_array_reorder = true;
-    this.jsonEditor = new JSONEditor(editorElem, {
-      schema: jsonTemplate
-    });
-
+    if (this.jsonEditor == null) {
+      this.jsonEditor = new JSONEditor(editorElem, {
+        schema: jsonTemplate,
+      });
+    }
+    // Se usa para setear los valores que trae la configuracion en el formulario
     this.setJsonEditor();
-    this.jsonFinal = this.jsonEditor.getValue();
-    //console.timeEnd();
-    this.mapper.getJsonFormat().subscribe((data: any) => {
-    });
-  }
 
-// Funcion que va seteando el nuevo contenido al jsonFinal segun cada click que se haga en el html
-  setJson(){
+    // Nos entrega el json final
     this.jsonFinal = this.jsonEditor.getValue();
   }
 
-  setJsonEditor(){
+  // Funcion que va seteando el nuevo contenido al jsonFinal segun cada click que se haga en el html
+  setJson() {
+    this.jsonFinal = this.jsonEditor.getValue();
+  }
+
+
+  // Metodo que alberga toda la configuracion json que se debe cargar, en caso de estar vacio no hacer nada, se debe llamar al servicio
+  setJsonEditor() {
     this.jsonEditor.setValue({
       "numDocumento": {
-        "xPath": "/BILL_INFO/OPER_INFO/OPER_ADDR/ADDR2"
+        "xPath": "/BILL_INFO/XML_INFO/RELEASE"
       },
       "tipoDocElect": {
-        "xPath": "/BILL_INFO/OPER_INFO/OPER_ADDR"
+        "xPath": "/BILL_INFO/XML_INFO/RELEASE"
       },
       "adquirientes": [
-        {
-          "detalleTributario": [
-            {
-              "idTributo": {
-                "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-              },
-              "nombreTributo": {
-                "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-              }
-            }
-          ],
-          "infoRut": {
-            "identificacion": {
-              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-            },
-            "nombre": {
-              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-            },
-            "responsabilidades": {
-              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-            },
-            "tipoIdentificacion": {
-              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-            },
-            "tipoRegimen": {
-              "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-            }
-          },
-          "nombreComercial": {
-            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-          },
-          "tipoPersona": {
-            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
-          }
-        },
         {
           "detalleTributario": [
             {
@@ -184,7 +190,7 @@ export class BodyComponent implements OnInit{
       "detalles": [
         {
           "cantidadUnidades": {
-            "xPath": "/BILL_INFO/OPER_INFO/OPER_ADDR/MUNCIPAL"
+            "xPath": "/BILL_INFO/XML_INFO/RELEASE"
           },
           "esGratis": {
             "xPath": "/BILL_INFO/XML_INFO/RELEASE",
@@ -313,11 +319,16 @@ export class BodyComponent implements OnInit{
           "xPath": "/BILL_INFO/XML_INFO/RELEASE"
         }
       },
-      "anticipos": []
+      "anticipos": [],
+      "autorizadoDescargar": {
+        "idAutorizado": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        },
+        "tipoIdAutorizado": {
+          "xPath": "/BILL_INFO/XML_INFO/RELEASE"
+        }
+      }
     });
   }
-
-
-
 
 }
