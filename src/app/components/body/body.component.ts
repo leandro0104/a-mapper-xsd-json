@@ -81,7 +81,6 @@ export class BodyComponent implements OnInit {
     this.idDocumentoSeleccionado = this.forma.get('tipoDoc').value;
     this.Servicio.consultarDatos(this.idObligadoSeleccionado, this.idDocumentoSeleccionado)*/
   console.log(this.mapperForm);
-  
   }
 
   cargarDatos(): any {
