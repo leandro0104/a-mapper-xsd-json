@@ -59,6 +59,7 @@ export class BodyComponent implements OnInit {
         console.error('loadFormData()', err);
       }
     );
+    /*
     this.mapperService.getXpathXML().subscribe(
       (res: any) => {
         this.xpathList = res;
@@ -67,12 +68,26 @@ export class BodyComponent implements OnInit {
         console.error('loadFormData()', err);
       }
     );
+    */
   }
 
   onFileChange(event: any): void {
     if (event.target.files[0]) {
-      const { name } = event.target.files[0];
-      this.xsdFile = name;
+      //const { name } = event.target.files[0];
+      //this.xsdFile = name;
+      this.xsdFile = event.target.files[0];
+
+      let fileData = new FormData();
+      fileData.append('file', this.xsdFile);
+      this.mapperService.obtainXpath( fileData ).subscribe(
+        (res: any) => {
+          this.xpathList = res;
+          console.log('xpathList', this.xpathList);
+        },
+        (err: any) => {
+          console.error('loadFormData()', err);
+        }
+      );
     }
   }
 
@@ -83,9 +98,11 @@ export class BodyComponent implements OnInit {
   console.log(this.mapperForm);
   }
 
+
   cargarDatos(): any {
     const editorElem = document.getElementById('json-editor-body');
     jsonTemplate.definitions.etiquetasSelect.enum = [];
+    console.log('xpathList', this.xpathList);
     jsonTemplate.definitions.etiquetasSelect.enum = this.xpathList;
     JSONEditor.defaults.options.theme = 'bootstrap4';
     JSONEditor.defaults.options.iconlib = 'fontawesome5'; //'foundation2';

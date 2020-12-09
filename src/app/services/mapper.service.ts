@@ -10,13 +10,13 @@ export class MapperService {
 
   // Metodo listar clientes que llama al metodo
   getClients(){
-    return this.http.get('https://run.mocky.io/v3/9b3edf82-3c0a-414a-8dee-4fd68dec9f3c');
-    // return this.http.get('http://localhost:8080/listClients');
+    //return this.http.get('https://run.mocky.io/v3/9b3edf82-3c0a-414a-8dee-4fd68dec9f3c');
+     return this.http.get('http://localhost:8080/listClients');
   }
 
   getDocuments(){
-    return this.http.get('https://run.mocky.io/v3/165f0e45-0833-4ecc-bbd1-826a1cc1bebf');
-    // return this.http.get('http://localhost:8080/listDocuments');
+    //return this.http.get('https://run.mocky.io/v3/165f0e45-0833-4ecc-bbd1-826a1cc1bebf');
+     return this.http.get('http://localhost:8080/listDocuments');
   }
 
   // Metodo Mock provisorio
@@ -25,7 +25,12 @@ export class MapperService {
   }
 
   obtainXpath(formData: FormData){
-     return this.http.post('http://localhost:8080/upload', formData);
+    //return this.http.post('http://localhost:8080/upload', formData);
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST'
+      };
+    return this.http.post('http://localhost:8080/upload', formData, { headers });
   }
 
 }
