@@ -1,0 +1,96 @@
+<app-header titleView="Mapper XML a JSON"></app-header>
+<div class="container-fluid">
+  <div class="card">
+    <h5 class="card-header">SELECCIONE EL CLIENTE A CONFIGURAR</h5>
+    <div class="card-body">
+      <form [formGroup]="mapperForm" (ngSubmit)="cargar()">
+        <div class="form-row">
+          <div class="col-md-4 mb-3">
+            <label for="validationTooltip01">Cliente (Obligado)</label>
+            <select class="custom-select" formControlName="cliente">
+              <option hidden value="" selected>Seleccionar Cliente</option>
+              <option *ngFor="let cliente of clientList">
+                {{ cliente.razonSocial }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="validationTooltip02">Tipo Documento</label>
+            <select class="custom-select" formControlName="tipoDocumento">
+              <option hidden value="" selected>Seleccionar Documento</option>
+              <option *ngFor="let documento of documentList">
+                {{ documento.descripcion }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="validationTooltip02">Cargar XSD</label>
+            <div class="form-group">
+              <input
+                type="file"
+                class="form-control-file"
+                id="exampleFormControlFile1"
+                accept=".xsd"
+                (change)="onFileChange($event)"
+                formControlName="xsdFile"
+              />
+              <div
+                *ngIf="
+                  mapperForm.controls.xsdFile.invalid &&
+                  (mapperForm.controls.xsdFile.dirty ||
+                    mapperForm.controls.xsdFile.touched)
+                "
+              >
+                <div
+                  *ngIf="
+                    mapperForm.controls.xsdFile.errors?.required && xsdFile
+                  "
+                  class="alert alert-danger mt-3"
+                >
+                  Archivo .xsd es requerido
+                </div>
+                <div
+                  *ngIf="mapperForm.controls.xsdFile.errors?.requiredFileType"
+                  class="alert alert-danger mt-3"
+                >
+                  Solo esta permitido archivos con extensión .xsd
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          type="submit"
+          class="btn btn-success mb-2"
+          data-toggle="collapse"
+          data-target="#collapseBody"
+          (click)="cargarDatos()"
+        >
+          Cargar Info
+        </button>
+      </form>
+    </div>
+  </div>
+  <br />
+  <div id="collapseBody" (click)="setJson()" class="collapse">
+    <div class="container-fluid">
+      <div id="json-editor-body">
+        <div class="row">
+          <button
+            type="button"
+            class="btn btn-success"
+            style="margin-right: 5px"
+            data-target="#collapseBody"
+            data-toggle="collapse"
+          >
+            Volver
+          </button>
+          <button type="button" class="btn btn-success">Guardar cambios</button>
+        </div>
+        <br />
+      </div>
+    </div>
+  </div>
+</div>
+
+<pre>{{ jsonFinal | json }}</pre>

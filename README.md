@@ -1,6 +1,6 @@
 # Proyecto Configurar mapper de XML a JSON
 
-Solución creada para Computec la cual consiste en una funcionalidad que permita efectuar la configuración del Mapper de XML a JSON por Obligado.
+Solución creada para Computec la cual consiste en una funcionalidad que permita efectuar la configuración y verificación del Mapper de XML a JSON por Obligado.
 
 Proyecto generado con [Angular CLI](https://github.com/angular/angular-cli) version 10.1.7.
 
@@ -14,15 +14,19 @@ Proyecto generado con [Angular CLI](https://github.com/angular/angular-cli) vers
  Heramientas utilizadas para el desarrollo:
 * <a href="https://github.com/json-editor/json-editor">`Json editor`</a>
 
+## Paths
+
+* /configurar
+
+* /verificar
+
 ## Clonar Proyecto
 
 ```
 git clone https://github.com/Altiuz-Computec/a-mapper-xsd-json.git
-
 ```
 
 ## Ejecución
 
 * npm install
-* npm install @json-editor/json-editor
 * ng serve -o

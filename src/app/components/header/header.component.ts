@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { MapperService } from 'src/app/services/mapper.service';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -7,10 +6,13 @@ import { MapperService } from 'src/app/services/mapper.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  constructor(private mapper: MapperService) {
-  }
+
+  @Input() titleView: string;
+
+  constructor() {}
 
   ngOnInit(): void {
   }
+  
 
 }
